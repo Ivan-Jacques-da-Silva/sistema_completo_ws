@@ -1,31 +1,14 @@
 
-import express, { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { registrarHistorico } from '../middleware/auditoria';
-import { authenticateAdmin } from '../middleware/auth';
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const { registrarHistorico } = require('../middleware/auditoria');
+const { authenticateAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Interfaces
-interface PreReservaData {
-  nome: string;
-  cpf_cnpj: string;
-  contato: string;
-  email: string;
-}
-
-interface ContrapropostaData extends PreReservaData {
-  proposta: string;
-}
-
-interface AgendamentoData extends PreReservaData {
-  data: string;
-  hora: string;
-}
-
 // Pré-Reserva
-router.post('/pre-reserva', async (req: Request<{}, any, PreReservaData>, res: Response) => {
+router.post('/pre-reserva', async (req, res) => {
   try {
     const { nome, cpf_cnpj, contato, email } = req.body;
 
@@ -58,7 +41,7 @@ router.post('/pre-reserva', async (req: Request<{}, any, PreReservaData>, res: R
 });
 
 // Contraproposta
-router.post('/contraproposta', async (req: Request<{}, any, ContrapropostaData>, res: Response) => {
+router.post('/contraproposta', async (req, res) => {
   try {
     const { nome, cpf_cnpj, contato, email, proposta } = req.body;
 
@@ -91,7 +74,7 @@ router.post('/contraproposta', async (req: Request<{}, any, ContrapropostaData>,
 });
 
 // Agendamento de Reunião
-router.post('/agendar-reuniao', async (req: Request<{}, any, AgendamentoData>, res: Response) => {
+router.post('/agendar-reuniao', async (req, res) => {
   try {
     const { nome, cpf_cnpj, contato, email, data, hora } = req.body;
 
@@ -124,61 +107,101 @@ router.post('/agendar-reuniao', async (req: Request<{}, any, AgendamentoData>, r
 });
 
 // Rotas administrativas para visualizar formulários
-router.get('/pre-reservas', authenticateAdmin, async (req: Request, res: Response) => {
+
+// Listar todas as pré-reservas
+router.get('/admin/pre-reservas', authenticateAdmin, async (req, res) => {
   try {
     const preReservas = await prisma.preReserva.findMany({
       orderBy: { createdAt: 'desc' }
     });
-
-    res.json({ 
-      sucesso: true, 
-      data: preReservas
-    });
+    res.json({ sucesso: true, data: preReservas });
   } catch (error) {
     console.error('Erro ao buscar pré-reservas:', error);
-    res.status(500).json({ 
-      sucesso: false, 
-      mensagem: 'Erro interno do servidor' 
-    });
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
-router.get('/contrapropostas', authenticateAdmin, async (req: Request, res: Response) => {
+// Listar todas as contrapropostas
+router.get('/admin/contrapropostas', authenticateAdmin, async (req, res) => {
   try {
     const contrapropostas = await prisma.contraproposta.findMany({
       orderBy: { createdAt: 'desc' }
     });
-
-    res.json({ 
-      sucesso: true, 
-      data: contrapropostas
-    });
+    res.json({ sucesso: true, data: contrapropostas });
   } catch (error) {
     console.error('Erro ao buscar contrapropostas:', error);
-    res.status(500).json({ 
-      sucesso: false, 
-      mensagem: 'Erro interno do servidor' 
-    });
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
-router.get('/agendamentos', authenticateAdmin, async (req: Request, res: Response) => {
+// Listar todos os agendamentos
+router.get('/admin/agendamentos', authenticateAdmin, async (req, res) => {
   try {
     const agendamentos = await prisma.agendamentoReuniao.findMany({
       orderBy: { createdAt: 'desc' }
     });
-
-    res.json({ 
-      sucesso: true, 
-      data: agendamentos
-    });
+    res.json({ sucesso: true, data: agendamentos });
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error);
-    res.status(500).json({ 
-      sucesso: false, 
-      mensagem: 'Erro interno do servidor' 
-    });
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
   }
 });
 
-export default router;
+// Marcar pré-reserva como visualizada
+router.put('/admin/pre-reservas/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const preReserva = await prisma.preReserva.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+
+    // Registrar no histórico
+    await registrarHistorico(req, 'UPDATE', 'pre_reservas', parseInt(id), { visualizado: false }, { visualizado: true });
+
+    res.json({ sucesso: true, data: preReserva });
+  } catch (error) {
+    console.error('Erro ao atualizar pré-reserva:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar contraproposta como visualizada
+router.put('/admin/contrapropostas/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const contraproposta = await prisma.contraproposta.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+
+    // Registrar no histórico
+    await registrarHistorico(req, 'UPDATE', 'contrapropostas', parseInt(id), { visualizado: false }, { visualizado: true });
+
+    res.json({ sucesso: true, data: contraproposta });
+  } catch (error) {
+    console.error('Erro ao atualizar contraproposta:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+// Marcar agendamento como visualizado
+router.put('/admin/agendamentos/:id/visualizar', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const agendamento = await prisma.agendamentoReuniao.update({
+      where: { id: parseInt(id) },
+      data: { visualizado: true }
+    });
+
+    // Registrar no histórico
+    await registrarHistorico(req, 'UPDATE', 'agendamentos_reuniao', parseInt(id), { visualizado: false }, { visualizado: true });
+
+    res.json({ sucesso: true, data: agendamento });
+  } catch (error) {
+    console.error('Erro ao atualizar agendamento:', error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor' });
+  }
+});
+
+module.exports = router;

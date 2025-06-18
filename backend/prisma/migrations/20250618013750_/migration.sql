@@ -62,6 +62,7 @@ CREATE TABLE "salas" (
     "nome" TEXT NOT NULL,
     "area" DOUBLE PRECISION NOT NULL,
     "posicao" TEXT NOT NULL,
+    "orientacao" TEXT,
     "preco" DOUBLE PRECISION NOT NULL,
     "disponivel" BOOLEAN NOT NULL DEFAULT true,
     "imagem" TEXT,
@@ -69,7 +70,6 @@ CREATE TABLE "salas" (
     "proposta" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "orientacao" TEXT,
 
     CONSTRAINT "salas_pkey" PRIMARY KEY ("id")
 );
