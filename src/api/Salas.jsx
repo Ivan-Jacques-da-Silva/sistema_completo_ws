@@ -1,10 +1,8 @@
-
 import React from 'react';
 import Config from '../Config';
 import { Row, Col } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Componente principal para exibição de salas
 const Salas = ({
   salas,
   salaSelecionada,
@@ -14,14 +12,12 @@ const Salas = ({
   salasCom,
   setMostrarProposta
 }) => {
-  // Função para verificar disponibilidade da sala
   const renderDisponibilidade = (andar, numero) => {
     const andarNumero = parseInt(andar);
     const numeroSalaCompleto = parseInt(`${andarNumero}${numero.toString().padStart(2, '0')}`);
     return salasCom.includes(numeroSalaCompleto);
   };
 
-  // Renderização quando não há salas disponíveis
   if (!salas || salas.length === 0) {
     return (
       <div className="text-center p-4">
@@ -34,7 +30,6 @@ const Salas = ({
     );
   }
 
-  // Renderização para telas mobile (largura < 1200px)
   if (larguraTela < 1200) {
     return (
       <>
@@ -71,9 +66,6 @@ const Salas = ({
                       alt={nome}
                       className="w-100 rounded mb-2"
                       style={{ width: '200px', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.target.src = '/placeholder-image.png';
-                      }}
                     />
                     <i
                       className={`bi fs-5 ${disponivel ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
@@ -107,7 +99,6 @@ const Salas = ({
     );
   }
 
-  // Renderização para telas desktop (largura >= 1200px)
   return (
     <AnimatePresence mode="wait">
       <Row
@@ -160,9 +151,6 @@ const Salas = ({
                     alt={nome}
                     style={{ width: '180px', height: '120px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
                     className="me-3"
-                    onError={(e) => {
-                      e.target.src = '/placeholder-image.png';
-                    }}
                   />
                   <div className="flex-grow-1 text-start">
                     <div className="d-flex justify-content-between align-items-start">
@@ -189,75 +177,3 @@ const Salas = ({
 };
 
 export default Salas;
-
-// Função para buscar salas da API (sem prefixo /api)
-const API_BASE_URL = Config.api_url;
-
-export const buscarSalas = async () => {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), Config.requestTimeout);
-
-    const response = await fetch(`${API_BASE_URL}/salas`, {
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar salas: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    if (!data.produtos || !Array.isArray(data.produtos)) {
-      throw new Error('Formato de dados inválido recebido da API');
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Erro ao buscar as salas:", error);
-    
-    // Tratamento específico para diferentes tipos de erro
-    if (error.name === 'AbortError') {
-      throw new Error('Timeout: A requisição demorou muito para responder');
-    } else if (error.message.includes('Failed to fetch')) {
-      throw new Error('Erro de conexão: Verifique sua internet');
-    }
-    
-    throw error;
-  }
-};
-
-// Função para buscar sala específica por ID
-export const buscarSalaPorId = async (id) => {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), Config.requestTimeout);
-
-    const response = await fetch(`${API_BASE_URL}/salas/${id}`, {
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error('Sala não encontrada');
-      }
-      throw new Error(`Erro ao buscar sala: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Erro ao buscar sala específica:", error);
-    throw error;
-  }
-};
