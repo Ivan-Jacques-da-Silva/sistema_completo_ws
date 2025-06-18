@@ -1,4 +1,4 @@
-const api_url = 'http://localhost:3001'
+const api_url = 'http://localhost:5000'
 // const api_url = 'https://api.wallstreetnr.com.br'
 
 if (!sessionStorage.getItem('csrfToken')) {
