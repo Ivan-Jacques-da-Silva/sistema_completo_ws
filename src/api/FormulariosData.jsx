@@ -35,6 +35,12 @@ export function PreReservaForm({
 export function ContrapropostaForm() {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [notification, setNotification] = useState({
+        show: false,
+        type: '',
+        title: '',
+        message: ''
+    });
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -65,16 +71,56 @@ export function ContrapropostaForm() {
 
             if (json.sucesso) {
                 setMostrarModal(false);
-                alert(json.mensagem);
+                setNotification({
+                    show: true,
+                    type: 'success',
+                    title: 'Sucesso!',
+                    message: json.mensagem
+                });
                 event.target.reset();
             } else {
-                alert(json.mensagem);
+                setNotification({
+                    show: true,
+                    type: 'error',
+                    title: 'Erro',
+                    message: json.mensagem
+                });
             }
         } catch (error) {
-            alert("Erro ao enviar formulário. Tente novamente.");
+            setNotification({
+                show: true,
+                type: 'error',
+                title: 'Erro de Conexão',
+                message: 'Erro ao enviar formulário. Tente novamente.'
+            });
         } finally {
             setLoading(false);
         }
+    };
+
+    const Notification = ({ show, onHide, type, title, message }) => {
+        const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
+
+        return (
+            <AnimatePresence>
+                {show && (
+                    <motion.div
+                        className={`position-fixed top-0 start-50 translate-middle-x p-3 ${bgColor} text-white rounded shadow-lg`}
+                        style={{ zIndex: 1070 }}
+                        initial={{ opacity: 0, y: -50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -50 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="d-flex align-items-center">
+                            <div className="fw-bold me-2">{title}</div>
+                            <div>{message}</div>
+                        </div>
+                        <button type="button" className="btn-close btn-close-white position-absolute top-0 end-0 m-2" aria-label="Close" onClick={onHide}></button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        );
     };
 
     return (
@@ -182,6 +228,14 @@ export function ContrapropostaForm() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <Notification
+                show={notification.show}
+                onHide={() => setNotification({ ...notification, show: false })}
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+            />
         </div>
     );
 }
@@ -190,6 +244,13 @@ export function ContrapropostaForm() {
 export function AgendarReuniaoForm() {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false);
+        const [notification, setNotification] = useState({
+        show: false,
+        type: '',
+        title: '',
+        message: ''
+    });
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -221,17 +282,58 @@ export function AgendarReuniaoForm() {
 
             if (json.sucesso) {
                 setMostrarModal(false);
-                alert(json.mensagem);
+                setNotification({
+                    show: true,
+                    type: 'success',
+                    title: 'Sucesso!',
+                    message: json.mensagem
+                });
                 event.target.reset();
             } else {
-                alert(json.mensagem);
+                setNotification({
+                    show: true,
+                    type: 'error',
+                    title: 'Erro',
+                    message: json.mensagem
+                });
             }
         } catch (error) {
-            alert("Erro ao enviar formulário. Tente novamente.");
+            setNotification({
+                show: true,
+                type: 'error',
+                title: 'Erro de Conexão',
+                message: 'Erro ao enviar formulário. Tente novamente.'
+            });
         } finally {
             setLoading(false);
         }
     };
+
+        const Notification = ({ show, onHide, type, title, message }) => {
+        const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
+
+        return (
+            <AnimatePresence>
+                {show && (
+                    <motion.div
+                        className={`position-fixed top-0 start-50 translate-middle-x p-3 ${bgColor} text-white rounded shadow-lg`}
+                        style={{ zIndex: 1070 }}
+                        initial={{ opacity: 0, y: -50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -50 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="d-flex align-items-center">
+                            <div className="fw-bold me-2">{title}</div>
+                            <div>{message}</div>
+                        </div>
+                        <button type="button" className="btn-close btn-close-white position-absolute top-0 end-0 m-2" aria-label="Close" onClick={onHide}></button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        );
+    };
+
 
     return (
         <div className="d-flex flex-column gap-2 w-100">
@@ -343,6 +445,14 @@ export function AgendarReuniaoForm() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <Notification
+                show={notification.show}
+                onHide={() => setNotification({ ...notification, show: false })}
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+            />
         </div>
     );
 }

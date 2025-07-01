@@ -40,6 +40,7 @@ import {
     DollarSign,
 } from "lucide-react";
 import Config from "../Config";
+import Notification from "../components/Notification";
 
 const Painel = () => {
     const navigate = useNavigate();
@@ -954,7 +955,7 @@ const Painel = () => {
                                                             <Badge
                                                                 bg="light"
                                                                 text="dark"
-                                                                className="fs-6"
+                                                                                               className="fs-6"
                                                             >
                                                                 {sala.andar}°
                                                             </Badge>
@@ -2032,8 +2033,7 @@ const Painel = () => {
                                             </Col>
                                         </Row>
                                     </Card.Body>
-                                </Card>
-                            </Col>
+                                </Card                            </Col>
                         </Row>
                     </Modal.Body>
                     <Modal.Footer className="border-0 pt-0">
