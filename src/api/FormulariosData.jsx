@@ -1,85 +1,99 @@
-
-import Config from '../Config'
-import { Button } from 'react-bootstrap'
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import Config from "../Config";
+import { Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Componente para Pré-Reserva
-export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) {
+export function PreReservaForm({
+    salaAtual,
+    onPagamento,
+    isSubmittingPayment,
+}) {
     // Verificar se a sala está disponível
-    const salaDisponivel = salaAtual?.atributos?.disponibilidade?.[0]?.valor === true
+    const salaDisponivel =
+        salaAtual?.atributos?.disponibilidade?.[0]?.valor === true;
 
     // Se sala não estiver disponível, não mostrar nada
     if (!salaDisponivel) {
-        return null
+        return null;
     }
 
     // Sala disponível - mostrar apenas botão de pré-reserva que vai para pagamento
     return (
-        <Button 
-            variant="warning" 
-            className="fw-bold text-dark" 
-            onClick={() => onPagamento(salaAtual)} 
+        <Button
+            variant="warning"
+            className="fw-bold text-dark"
+            onClick={() => onPagamento(salaAtual)}
             disabled={isSubmittingPayment}
         >
-            {isSubmittingPayment ? 'PROCESSANDO...' : 'PRÉ-RESERVA'}
+            {isSubmittingPayment ? "PROCESSANDO..." : "PRÉ-RESERVA"}
         </Button>
-    )
+    );
 }
 
 // Componente para Contraproposta
 export function ContrapropostaForm() {
-    const [mostrarModal, setMostrarModal] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-        setLoading(true)
+        event.preventDefault();
+        setLoading(true);
 
-        const formData = new FormData(event.target)
+        const formData = new FormData(event.target);
         const data = {
-            nome: formData.get('nome'),
-            cpf_cnpj: formData.get('cpf_cnpj'),
-            contato: formData.get('contato'),
-            email: formData.get('email'),
-            proposta: formData.get('proposta')
-        }
+            nome: formData.get("nome"),
+            cpf_cnpj: formData.get("cpf_cnpj"),
+            contato: formData.get("contato"),
+            email: formData.get("email"),
+            proposta: formData.get("proposta"),
+        };
 
         try {
-            const response = await fetch(`${Config.api_url}/api/formularios/contraproposta`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const response = await fetch(
+                `${Config.api_url}/api/formularios/contraproposta`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
                 },
-                body: JSON.stringify(data)
-            })
+            );
 
-            const json = await response.json()
+            const json = await response.json();
 
             if (json.sucesso) {
-                setMostrarModal(false)
-                alert(json.mensagem)
-                event.target.reset()
+                setMostrarModal(false);
+                alert(json.mensagem);
+                event.target.reset();
             } else {
-                alert(json.mensagem)
+                alert(json.mensagem);
             }
         } catch (error) {
-            alert('Erro ao enviar formulário. Tente novamente.')
+            alert("Erro ao enviar formulário. Tente novamente.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="d-flex flex-column gap-2 w-100">
-            <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
+            <Button
+                variant="warning"
+                className="fw-bold text-dark"
+                onClick={() => setMostrarModal(true)}
+            >
                 CONTRAPROPOSTA
             </Button>
             <AnimatePresence>
                 {mostrarModal && (
                     <motion.div
                         className="position-fixed top-0 start-0 w-100 h-100"
-                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 1060,
+                        }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -89,21 +103,27 @@ export function ContrapropostaForm() {
                             onClick={(e) => e.stopPropagation()}
                             className="position-absolute top-50 start-50 translate-middle p-4"
                             style={{
-                                background: 'rgba(0, 69, 138, 0.9)',
-                                borderRadius: '20px',
-                                width: '90%',
-                                maxWidth: '400px',
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                                background: "rgba(0, 69, 138, 0.9)",
+                                borderRadius: "20px",
+                                width: "90%",
+                                maxWidth: "400px",
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
                             }}
                         >
                             <h5 className="text-white text-center fw-bold mb-4">
                                 Contraproposta
                             </h5>
-                            <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
+                            <p
+                                className="text-white text-center mb-4"
+                                style={{ fontSize: "0.9rem" }}
+                            >
                                 Faça sua contraproposta
                             </p>
 
-                            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                            <form
+                                onSubmit={handleSubmit}
+                                className="d-flex flex-column gap-3"
+                            >
                                 <input
                                     name="nome"
                                     type="text"
@@ -143,74 +163,93 @@ export function ContrapropostaForm() {
                                     type="submit"
                                     disabled={loading}
                                     className="btn fw-bold rounded-pill py-3"
-                                    style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
+                                    style={{
+                                        backgroundColor: "#fff",
+                                        color: "#001A47",
+                                        border: "3px solid #001A47",
+                                    }}
                                 >
-                                    {loading ? 'ENVIANDO...' : 'ENVIAR CONTRAPROPOSTA'}
+                                    {loading
+                                        ? "ENVIANDO..."
+                                        : "ENVIAR CONTRAPROPOSTA"}
                                 </button>
                             </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            <button
+                                onClick={() => setMostrarModal(false)}
+                                className="btn-close position-absolute top-0 end-0 m-3"
+                            ></button>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
-    )
+    );
 }
 
 // Componente para Agendamento de Reunião
 export function AgendarReuniaoForm() {
-    const [mostrarModal, setMostrarModal] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-        setLoading(true)
+        event.preventDefault();
+        setLoading(true);
 
-        const formData = new FormData(event.target)
+        const formData = new FormData(event.target);
         const data = {
-            nome: formData.get('nome'),
-            cpf_cnpj: formData.get('cpf_cnpj'),
-            contato: formData.get('contato'),
-            email: formData.get('email'),
-            data: formData.get('data'),
-            hora: formData.get('hora')
-        }
+            nome: formData.get("nome"),
+            cpf_cnpj: formData.get("cpf_cnpj"),
+            contato: formData.get("contato"),
+            email: formData.get("email"),
+            data: formData.get("data"),
+            hora: formData.get("hora"),
+        };
 
         try {
-            const response = await fetch(`${Config.api_url}/api/formularios/agendar-reuniao`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const response = await fetch(
+                `${Config.api_url}/api/formularios/agendar-reuniao`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
                 },
-                body: JSON.stringify(data)
-            })
+            );
 
-            const json = await response.json()
+            const json = await response.json();
 
             if (json.sucesso) {
-                setMostrarModal(false)
-                alert(json.mensagem)
-                event.target.reset()
+                setMostrarModal(false);
+                alert(json.mensagem);
+                event.target.reset();
             } else {
-                alert(json.mensagem)
+                alert(json.mensagem);
             }
         } catch (error) {
-            alert('Erro ao enviar formulário. Tente novamente.')
+            alert("Erro ao enviar formulário. Tente novamente.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="d-flex flex-column gap-2 w-100">
-            <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
+            <Button
+                variant="warning"
+                className="fw-bold text-dark"
+                onClick={() => setMostrarModal(true)}
+            >
                 AGENDAR REUNIÃO
             </Button>
             <AnimatePresence>
                 {mostrarModal && (
                     <motion.div
                         className="position-fixed top-0 start-0 w-100 h-100"
-                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                        style={{
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 1060,
+                        }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -220,21 +259,27 @@ export function AgendarReuniaoForm() {
                             onClick={(e) => e.stopPropagation()}
                             className="position-absolute top-50 start-50 translate-middle p-4"
                             style={{
-                                background: 'rgba(0, 69, 138, 0.9)',
-                                borderRadius: '20px',
-                                width: '90%',
-                                maxWidth: '400px',
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                                background: "rgba(0, 69, 138, 0.9)",
+                                borderRadius: "20px",
+                                width: "90%",
+                                maxWidth: "400px",
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
                             }}
                         >
                             <h5 className="text-white text-center fw-bold mb-4">
                                 Agendar Reunião
                             </h5>
-                            <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
+                            <p
+                                className="text-white text-center mb-4"
+                                style={{ fontSize: "0.9rem" }}
+                            >
                                 Agende uma reunião conosco
                             </p>
 
-                            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                            <form
+                                onSubmit={handleSubmit}
+                                className="d-flex flex-column gap-3"
+                            >
                                 <input
                                     name="nome"
                                     type="text"
@@ -279,31 +324,51 @@ export function AgendarReuniaoForm() {
                                     type="submit"
                                     disabled={loading}
                                     className="btn fw-bold rounded-pill py-3"
-                                    style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
+                                    style={{
+                                        backgroundColor: "#fff",
+                                        color: "#001A47",
+                                        border: "3px solid #001A47",
+                                    }}
                                 >
-                                    {loading ? 'ENVIANDO...' : 'AGENDAR REUNIÃO'}
+                                    {loading
+                                        ? "ENVIANDO..."
+                                        : "AGENDAR REUNIÃO"}
                                 </button>
                             </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            <button
+                                onClick={() => setMostrarModal(false)}
+                                className="btn-close position-absolute top-0 end-0 m-3"
+                            ></button>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
-    )
+    );
 }
 
 // Componente principal (compatibilidade com código existente)
-const FormularioData = ({ codigo, salaAtual, onPagamento, isSubmittingPayment }) => {
-    if (codigo === 'wall_street_pre_reserva') {
-        return <PreReservaForm salaAtual={salaAtual} onPagamento={onPagamento} isSubmittingPayment={isSubmittingPayment} />
-    } else if (codigo === 'wall_street_contraproposta') {
-        return <ContrapropostaForm />
-    } else if (codigo === 'wall_street_agendar_reuniao') {
-        return <AgendarReuniaoForm />
+const FormularioData = ({
+    codigo,
+    salaAtual,
+    onPagamento,
+    isSubmittingPayment,
+}) => {
+    if (codigo === "wall_street_pre_reserva") {
+        return (
+            <PreReservaForm
+                salaAtual={salaAtual}
+                onPagamento={onPagamento}
+                isSubmittingPayment={isSubmittingPayment}
+            />
+        );
+    } else if (codigo === "wall_street_contraproposta") {
+        return <ContrapropostaForm />;
+    } else if (codigo === "wall_street_agendar_reuniao") {
+        return <AgendarReuniaoForm />;
     }
 
-    return null
-}
+    return null;
+};
 
-export default FormularioData
+export default FormularioData;
