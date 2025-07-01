@@ -32,6 +32,7 @@ const Andares = () => {
     const [mostrarMenu, setMostrarMenu] = useState(false);
     const [dadosProduto, setDadosProduto] = useState(null);
     const [mostrarProposta, setMostrarProposta] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const andares = Array.from({ length: 15 }, (_, i) => `${19 - i}° andar`);
 
@@ -114,6 +115,35 @@ const Andares = () => {
     const lucro = valorizacaoEntrega - valorTotalSemDesconto;
     const valorAluguel = valorTotalSemDesconto * 0.0095;
 
+    const handlePagamento = async (sala) => {
+        try {
+          setIsSubmitting(true);
+    
+          // Redirecionar para o checkout da Stripe
+          //await StripeAPI.redirectToCheckout(sala.id, sala.atributos.nome[0].valor);
+          //window.location.href = `https://book.stripe.com/4gMdRb1N6cEX5xtdg104800`;
+           // Redirecionar para o checkout da Stripe
+           const session = await fetch(`${Config.api_url}/api/stripe/create-checkout-session`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              priceId: 'prod_SW7U04ozTKkc7V',
+              salaId: sala.id,
+              salaNome: sala.atributos.nome[0].valor,
+            }),
+          }).then(res => res.json());
+    
+          window.location.href = session.url;
+    
+        } catch (error) {
+          console.error('Erro ao iniciar pagamento:', error);
+          alert('Erro ao processar pagamento. Tente novamente.');
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
 
 
     return (
@@ -374,6 +404,13 @@ const Andares = () => {
                                             BAIXAR PROPOSTA
                                         </Button>
                                     )}
+                                        <Button
+                                            onClick={() => handlePagamento(salaAtual)}
+                                            className="fw-bold text-dark btn-primary"
+                                            disabled={isSubmitting || !salaAtual?.atributos?.disponibilidade?.[0]?.valor}
+                                        >
+                                            {isSubmitting ? 'Processando...' : 'Pagar Agora'}
+                                        </Button>
                                 </div>
                             </motion.div>
                         </div>

@@ -1,18 +1,19 @@
-
 const express = require('express');
 const router = express.Router();
 
 // Importar todas as rotas
-const salasRoutes = require('./salas');
-const adminRoutes = require('./admin');
-const formulariosRoutes = require('./formularios');
 const authRoutes = require('./auth');
+const adminRoutes = require('./admin');
+const formularioRoutes = require('./formularios');
+const salasRoutes = require('./salas');
+const stripeRoutes = require('../stripe/routes');
 
-// Configurar as rotas
-router.use('/salas', salasRoutes);
-router.use('/admin', adminRoutes);
-router.use('/formularios', formulariosRoutes);
+// Configurar todas as rotas
 router.use('/auth', authRoutes);
+router.use('/admin', adminRoutes);
+router.use('/formularios', formularioRoutes);
+router.use('/salas', salasRoutes);
+router.use('/stripe', stripeRoutes);
 
 // Rota de status da API
 router.get('/status', (req, res) => {
