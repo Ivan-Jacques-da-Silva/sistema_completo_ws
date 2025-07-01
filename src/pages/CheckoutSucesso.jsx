@@ -6,25 +6,34 @@ import StripeAPI from '../api/Stripe';
 function CheckoutSucesso() {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState('verificando');
+  const [dadosSessao, setDadosSessao] = useState(null);
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
     if (sessionId) {
       verificarPagamento();
+    } else {
+      setStatus('erro');
     }
   }, [sessionId]);
 
   const verificarPagamento = async () => {
     try {
-      const resultado = await StripeAPI.getSessionStatus(sessionId);
+      // TODO: Implementar StripeAPI.getSessionStatus se não existir
+      const response = await fetch(`${CONFIG.API_URL}/stripe/session/${sessionId}`);
+      const resultado = await response.json();
+      
+      setDadosSessao(resultado);
       
       if (resultado.payment_status === 'paid') {
         setStatus('sucesso');
-      } else {
+      } else if (resultado.payment_status === 'unpaid') {
         setStatus('pendente');
+      } else {
+        setStatus('erro');
       }
     } catch (error) {
-      console.error('Erro ao verificar pagamento:', error);
+      console.error('❌ Erro ao verificar pagamento:', error);
       setStatus('erro');
     }
   };
@@ -40,6 +49,71 @@ function CheckoutSucesso() {
               </div>
               <h3>Verificando seu pagamento...</h3>
               <p>Aguarde alguns instantes enquanto confirmamos sua transação.</p>
+            </div>
+          )}
+
+          {status === 'sucesso' && (
+            <div>
+              <div className="text-success mb-4">
+                <i className="bi bi-check-circle-fill" style={{fontSize: '4rem'}}></i>
+              </div>
+              <h2 className="text-success mb-3">Pagamento Confirmado!</h2>
+              <p className="lead mb-4">
+                Sua reserva foi processada com sucesso.
+              </p>
+              {dadosSessao?.metadata?.nome_sala && (
+                <div className="alert alert-success">
+                  <strong>Sala reservada:</strong> {dadosSessao.metadata.nome_sala}
+                </div>
+              )}
+              <div className="mt-4">
+                <Link to="/" className="btn btn-primary me-3">
+                  Voltar ao Início
+                </Link>
+                <Link to="/andares" className="btn btn-outline-primary">
+                  Ver Outras Salas
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {status === 'pendente' && (
+            <div>
+              <div className="text-warning mb-4">
+                <i className="bi bi-clock-fill" style={{fontSize: '4rem'}}></i>
+              </div>
+              <h2 className="text-warning mb-3">Pagamento Pendente</h2>
+              <p className="lead mb-4">
+                Seu pagamento ainda está sendo processado. Você receberá uma confirmação em breve.
+              </p>
+              <div className="mt-4">
+                <button onClick={verificarPagamento} className="btn btn-primary me-3">
+                  Verificar Novamente
+                </button>
+                <Link to="/" className="btn btn-outline-primary">
+                  Voltar ao Início
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {status === 'erro' && (
+            <div>
+              <div className="text-danger mb-4">
+                <i className="bi bi-x-circle-fill" style={{fontSize: '4rem'}}></i>
+              </div>
+              <h2 className="text-danger mb-3">Erro na Verificação</h2>
+              <p className="lead mb-4">
+                Não foi possível verificar o status do seu pagamento. Entre em contato conosco se o problema persistir.
+              </p>
+              <div className="mt-4">
+                <button onClick={verificarPagamento} className="btn btn-primary me-3">
+                  Tentar Novamente
+                </button>
+                <Link to="/" className="btn btn-outline-primary">
+                  Voltar ao Início
+                </Link>
+              </div>
             </div>
           )}
 

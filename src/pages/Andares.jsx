@@ -118,27 +118,43 @@ const Andares = () => {
     const handlePagamento = async (sala) => {
         try {
           setIsSubmitting(true);
+          console.log('🔄 Iniciando pagamento para sala:', sala.id);
     
-          // Redirecionar para o checkout da Stripe
-          //await StripeAPI.redirectToCheckout(sala.id, sala.atributos.nome[0].valor);
-          //window.location.href = `https://book.stripe.com/4gMdRb1N6cEX5xtdg104800`;
-           // Redirecionar para o checkout da Stripe
-           const session = await fetch(`${Config.api_url}/api/stripe/create-checkout-session`, {
+          // TODO: Configurar o priceId no seu painel Stripe
+          // Você pode usar um priceId fixo ou calcular dinamicamente
+          const priceId = 'price_XXXXXXXXX'; // TODO: Substituir pelo seu price_id real
+          
+          const session = await fetch(`${Config.api_url}/stripe/create-checkout-session`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              priceId: 'prod_SW7U04ozTKkc7V',
               salaId: sala.id,
-              salaNome: sala.atributos.nome[0].valor,
+              nomeSala: sala.atributos.nome[0].valor,
+              preco: parseFloat(sala.precos?.de?.[0]?.valor || 0),
+              // priceId: priceId, // TODO: Descomentar se usar price_id fixo
+              // TODO: Adicionar outros dados se necessário
+              // andar: sala.andar,
+              // area: sala.atributos.area[0].valor
             }),
-          }).then(res => res.json());
-    
-          window.location.href = session.url;
+          });
+
+          if (!session.ok) {
+            throw new Error(`Erro ${session.status}: ${session.statusText}`);
+          }
+
+          const data = await session.json();
+          
+          if (data.url) {
+            console.log('✅ Redirecionando para checkout:', data.sessionId);
+            window.location.href = data.url;
+          } else {
+            throw new Error('URL de checkout não recebida');
+          }
     
         } catch (error) {
-          console.error('Erro ao iniciar pagamento:', error);
+          console.error('❌ Erro ao iniciar pagamento:', error);
           alert('Erro ao processar pagamento. Tente novamente.');
         } finally {
           setIsSubmitting(false);

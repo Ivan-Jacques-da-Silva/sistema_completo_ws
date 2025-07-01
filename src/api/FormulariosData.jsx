@@ -8,6 +8,9 @@ export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) 
     const [mostrarModal, setMostrarModal] = useState(false)
     const [loading, setLoading] = useState(false)
 
+    // Verificar se a sala está disponível para mostrar botão de pagamento
+    const salaDisponivel = salaAtual?.atributos?.disponibilidade?.[0]?.valor === true
+
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
@@ -123,14 +126,156 @@ export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) 
                             </motion.div>
                         )}
                     </AnimatePresence>
-                    <Button 
-                        variant="success" 
-                        className="fw-bold" 
-                        onClick={() => onPagamento(salaAtual)} 
-                        disabled={isSubmittingPayment}
-                    >
-                        {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR'}
-                    </Button>
+                    {/* Mostrar botão de pagamento apenas se sala estiver disponível */}
+                    {salaDisponivel ? (
+                        <Button 
+                            variant="success" 
+                            className="fw-bold" 
+                            onClick={() => onPagamento(salaAtual)} 
+                            disabled={isSubmittingPayment}
+                            style={{
+                                backgroundColor: '#28a745',
+                                border: 'none',
+                                borderRadius: '25px',
+                                padding: '12px 24px',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase',
+                                width: '100%'
+                            }}
+                        >
+                            {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR AGORA'}
+                        </Button>
+                    ) : (
+                        <Button 
+                            variant="outline-secondary" 
+                            className="fw-bold" 
+                            disabled
+                            style={{
+                                border: '2px solid #6c757d',
+                                borderRadius: '25px',
+                                padding: '12px 24px',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase',
+                                width: '100%',
+                                color: '#6c757d'
+                            }}
+                        >
+                            SALA INDISPONÍVEL
+                        </Button>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
+    // Se sala não estiver disponível, mostrar apenas pré-reserva para lista de espera
+    if (!salaDisponivel) {
+        return (
+            <div>
+                <Button 
+                    variant="primary" 
+                    className="fw-bold" 
+                    onClick={() => setMostrarModal(true)}
+                    style={{
+                        backgroundColor: '#007bff',
+                        border: 'none',
+                        borderRadius: '25px',
+                        padding: '12px 24px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        width: '100%'
+                    }}
+                >
+                    PRÉ-RESERVA (LISTA DE ESPERA)
+                </Button>
+
+                <AnimatePresence>
+                    {mostrarModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                            style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                className="bg-white p-4 rounded position-relative"
+                                style={{ maxWidth: '500px', width: '90%' }}
+                            >
+                                <h4 className="text-center mb-4">Lista de Espera - {salaAtual?.atributos?.nome?.[0]?.valor}</h4>
+                                <form onSubmit={handleSubmit}>
+                                    <input
+                                        type="text"
+                                        name="nome"
+                                        required
+                                        placeholder="NOME COMPLETO"
+                                        className="form-control rounded-4 px-3 py-3 mb-3"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="cpf_cnpj"
+                                        required
+                                        placeholder="CPF/CNPJ"
+                                        className="form-control rounded-4 px-3 py-3 mb-3"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="contato"
+                                        required
+                                        placeholder="TELEFONE/WHATSAPP"
+                                        className="form-control rounded-4 px-3 py-3 mb-3"
+                                    />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        required
+                                        placeholder="EMAIL"
+                                        className="form-control rounded-4 px-3 py-3 mb-3"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="btn fw-bold rounded-pill py-3"
+                                        style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47', width: '100%' }}
+                                    >
+                                        {loading ? 'ENVIANDO...' : 'ENTRAR NA LISTA DE ESPERA'}
+                                    </button>
+                                </form>
+                                <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        )
+    }
+
+    // Sala disponível - mostrar botão de pagamento
+    return (
+        <Button 
+            variant="success" 
+            className="fw-bold" 
+            onClick={() => onPagamento(salaAtual)} 
+            disabled={isSubmittingPayment}
+            style={{
+                backgroundColor: '#28a745',
+                border: 'none',
+                borderRadius: '25px',
+                padding: '12px 24px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                width: '100%'
+            }}
+        >
+            {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR AGORA'}
+        </Button>
                 </>
             ) : (
                 <p className="text-danger fw-bold">Sala Indisponível</p>
