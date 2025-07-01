@@ -89,7 +89,7 @@ const errorHandler = (err, req, res, next) => {
     codigo,
     timestamp: new Date().toISOString()
   });
-};
+}; 
 
 // Middleware
 app.use(cors({
