@@ -383,7 +383,12 @@ const Andares = () => {
                                 <p className="small text-center text-muted mb-0">**Atualizado via cub e após a entrega da obra o índice de reajuste é outro, confira direto conosco.</p>
 
                                 <div className="d-flex flex-column gap-2 mt-4">
-                                    <FormularioData codigo="wall_street_pre_reserva" />
+                                    <FormularioData 
+                                        codigo="wall_street_pre_reserva" 
+                                        salaAtual={salaAtual}
+                                        onPagamento={handlePagamento}
+                                        isSubmittingPayment={isSubmitting}
+                                    />
                                     <FormularioData codigo="wall_street_contraproposta" />
                                     <FormularioData codigo="wall_street_agendar_reuniao" />
 
@@ -404,13 +409,6 @@ const Andares = () => {
                                             BAIXAR PROPOSTA
                                         </Button>
                                     )}
-                                        <Button
-                                            onClick={() => handlePagamento(salaAtual)}
-                                            className="fw-bold text-dark btn-primary"
-                                            disabled={isSubmitting || !salaAtual?.atributos?.disponibilidade?.[0]?.valor}
-                                        >
-                                            {isSubmitting ? 'Processando...' : 'Pagar Agora'}
-                                        </Button>
                                 </div>
                             </motion.div>
                         </div>

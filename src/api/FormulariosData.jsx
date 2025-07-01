@@ -1,18 +1,17 @@
-
 import Config from '../Config'
 import { Button } from 'react-bootstrap'
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // Componente para Pré-Reserva
-export function PreReservaForm() {
+export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) {
     const [mostrarModal, setMostrarModal] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -29,9 +28,9 @@ export function PreReservaForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -48,80 +47,94 @@ export function PreReservaForm() {
 
     return (
         <div className="d-flex flex-column gap-2 w-100">
-            <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
-                PRÉ-RESERVA
-            </Button>
-            <AnimatePresence>
-                {mostrarModal && (
-                    <motion.div
-                        className="position-fixed top-0 start-0 w-100 h-100"
-                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setMostrarModal(false)}
-                    >
-                        <div
-                            onClick={(e) => e.stopPropagation()}
-                            className="position-absolute top-50 start-50 translate-middle p-4"
-                            style={{
-                                background: 'rgba(0, 69, 138, 0.9)',
-                                borderRadius: '20px',
-                                width: '90%',
-                                maxWidth: '400px',
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-                            }}
-                        >
-                            <h5 className="text-white text-center fw-bold mb-4">
-                                Pré-Reserva
-                            </h5>
-                            <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
-                                Preencha os dados para fazer sua pré-reserva
-                            </p>
-
-                            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
-                                <input
-                                    name="nome"
-                                    type="text"
-                                    required
-                                    placeholder="NOME COMPLETO"
-                                    className="form-control rounded-4 px-3 py-3 mb-3"
-                                />
-                                <input
-                                    name="cpf_cnpj"
-                                    type="text"
-                                    required
-                                    placeholder="CPF/CNPJ"
-                                    className="form-control rounded-4 px-3 py-3 mb-3"
-                                />
-                                <input
-                                    name="contato"
-                                    type="tel"
-                                    required
-                                    placeholder="TELEFONE"
-                                    className="form-control rounded-4 px-3 py-3 mb-3"
-                                />
-                                <input
-                                    name="email"
-                                    type="email"
-                                    required
-                                    placeholder="EMAIL"
-                                    className="form-control rounded-4 px-3 py-3 mb-3"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="btn fw-bold rounded-pill py-3"
-                                    style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
+            {salaAtual?.atributos?.disponibilidade?.[0]?.valor ? (
+                <>
+                    <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
+                        PRÉ-RESERVA
+                    </Button>
+                    <AnimatePresence>
+                        {mostrarModal && (
+                            <motion.div
+                                className="position-fixed top-0 start-0 w-100 h-100"
+                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setMostrarModal(false)}
+                            >
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="position-absolute top-50 start-50 translate-middle p-4"
+                                    style={{
+                                        background: 'rgba(0, 69, 138, 0.9)',
+                                        borderRadius: '20px',
+                                        width: '90%',
+                                        maxWidth: '400px',
+                                        boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                                    }}
                                 >
-                                    {loading ? 'ENVIANDO...' : 'ENVIAR PRÉ-RESERVA'}
-                                </button>
-                            </form>
-                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                    <h5 className="text-white text-center fw-bold mb-4">
+                                        Pré-Reserva
+                                    </h5>
+                                    <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
+                                        Preencha os dados para fazer sua pré-reserva
+                                    </p>
+
+                                    <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                                        <input
+                                            name="nome"
+                                            type="text"
+                                            required
+                                            placeholder="NOME COMPLETO"
+                                            className="form-control rounded-4 px-3 py-3 mb-3"
+                                        />
+                                        <input
+                                            name="cpf_cnpj"
+                                            type="text"
+                                            required
+                                            placeholder="CPF/CNPJ"
+                                            className="form-control rounded-4 px-3 py-3 mb-3"
+                                        />
+                                        <input
+                                            name="contato"
+                                            type="tel"
+                                            required
+                                            placeholder="TELEFONE"
+                                            className="form-control rounded-4 px-3 py-3 mb-3"
+                                        />
+                                        <input
+                                            name="email"
+                                            type="email"
+                                            required
+                                            placeholder="EMAIL"
+                                            className="form-control rounded-4 px-3 py-3 mb-3"
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="btn fw-bold rounded-pill py-3"
+                                            style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
+                                        >
+                                            {loading ? 'ENVIANDO...' : 'ENVIAR PRÉ-RESERVA'}
+                                        </button>
+                                    </form>
+                                    <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    <Button 
+                        variant="success" 
+                        className="fw-bold" 
+                        onClick={() => onPagamento(salaAtual)} 
+                        disabled={isSubmittingPayment}
+                    >
+                        {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR'}
+                    </Button>
+                </>
+            ) : (
+                <p className="text-danger fw-bold">Sala Indisponível</p>
+            )}
         </div>
     )
 }
@@ -134,7 +147,7 @@ export function ContrapropostaForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -152,9 +165,9 @@ export function ContrapropostaForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -264,7 +277,7 @@ export function AgendarReuniaoForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         setLoading(true)
-        
+
         const formData = new FormData(event.target)
         const data = {
             nome: formData.get('nome'),
@@ -283,9 +296,9 @@ export function AgendarReuniaoForm() {
                 },
                 body: JSON.stringify(data)
             })
-            
+
             const json = await response.json()
-            
+
             if (json.sucesso) {
                 setMostrarModal(false)
                 alert(json.mensagem)
@@ -393,14 +406,16 @@ export function AgendarReuniaoForm() {
 }
 
 // Componente principal (compatibilidade com código existente)
-export default function FormulariosData({ codigo = '' }) {
+const FormularioData = ({ codigo, salaAtual, onPagamento, isSubmittingPayment }) => {
     if (codigo === 'wall_street_pre_reserva') {
-        return <PreReservaForm />
+        return <PreReservaForm salaAtual={salaAtual} onPagamento={onPagamento} isSubmittingPayment={isSubmittingPayment} />
     } else if (codigo === 'wall_street_contraproposta') {
         return <ContrapropostaForm />
     } else if (codigo === 'wall_street_agendar_reuniao') {
         return <AgendarReuniaoForm />
     }
-    
+
     return null
 }
+
+export default FormularioData

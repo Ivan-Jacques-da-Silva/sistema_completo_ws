@@ -1,0 +1,19 @@
+[33mab4973a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mversão_inicial[m[33m, [m[1;31morigin/versão_inicial[m[33m)[m HEAD@{0}: reset: moving to ab4973a
+[33mc915294[m HEAD@{1}: commit: ajustes
+[33m010f486[m HEAD@{2}: commit: Remove backend.zip do versionamento
+[33m7b2ed93[m HEAD@{3}: checkout: moving from replit-agent to versão_inicial
+[33ma286c6c[m[33m ([m[1;32mreplit-agent[m[33m)[m HEAD@{4}: checkout: moving from versão_inicial to replit-agent
+[33m7b2ed93[m HEAD@{5}: checkout: moving from main to versão_inicial
+[33m67d0ba0[m[33m ([m[1;32mmain[m[33m)[m HEAD@{6}: checkout: moving from versão_inicial to main
+[33m7b2ed93[m HEAD@{7}: commit: Ajustes cors e apis
+[33m8998398[m HEAD@{8}: commit: Antes integração API stripe
+[33mb889979[m HEAD@{9}: commit: Sistema finalizado (100%) funcional
+[33mcb4ef21[m HEAD@{10}: commit (merge): Correção
+[33m55dca39[m HEAD@{11}: commit: Ajuste de rotas, e erros básico (painel 100%)
+[33md3a4e97[m HEAD@{12}: commit: Assistant checkpoint: Corrigir rotas de salas e executar seed
+[33ma49260b[m HEAD@{13}: commit: Assistant checkpoint: Corrigir sistema CRUD completo para salas e formulários
+[33m85702de[m HEAD@{14}: commit: Assistant checkpoint: Fix routes and image paths for salas and admin
+[33mf28fca0[m HEAD@{15}: commit: Checkpoint before assistant change: Ensure all website features are accessible by correcting server communication
+[33m5d91697[m HEAD@{16}: commit: Assistant checkpoint: Create simplified seed file structure
+[33m4548aed[m HEAD@{17}: commit: Checkpoint before assistant change: Include details about the Wall Street Corporate real estate project
+[33m57c1890[m HEAD@{18}: checkout: moving from main to versão_inicial
