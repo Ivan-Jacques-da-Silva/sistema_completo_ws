@@ -45,28 +45,48 @@ router.get('/config', (req, res) => {
 // Endpoint para criar sessão de checkout com dados da sala
 router.post('/create-checkout-session', async (req, res) => {
   try {
+    console.log('📥 Dados recebidos:', req.body);
+    
     const { salaId, preco, nomeSala, priceId } = req.body;
 
-    // TODO: Configurar o valor do produto e price_id no seu painel Stripe
-    // Para usar um produto fixo, descomente a linha abaixo e configure o STRIPE_PRICE_ID no .env
-    // const priceId = process.env.STRIPE_PRICE_ID;
+    // Validar dados obrigatórios
+    if (!salaId) {
+      return res.status(400).json({ 
+        error: 'salaId é obrigatório',
+        received: req.body 
+      });
+    }
 
+    // Verificar configurações da Stripe
+    if (!STRIPE_CONFIG.productId) {
+      console.error('❌ STRIPE_PRODUCT_ID não configurado');
+      return res.status(500).json({ 
+        error: 'Configuração do Stripe incompleta',
+        details: 'STRIPE_PRODUCT_ID não encontrado no .env'
+      });
+    }
+
+    if (!STRIPE_CONFIG.secretKey || STRIPE_CONFIG.secretKey.length < 50) {
+      console.error('❌ STRIPE_SECRET_KEY inválida ou incompleta');
+      return res.status(500).json({ 
+        error: 'Chave secreta da Stripe inválida',
+        details: 'Verifique a STRIPE_SECRET_KEY no .env'
+      });
+    }
+
+    const baseUrl = req.headers.origin || 'http://localhost:3000';
+    
     let sessionData = {
       payment_method_types: ['card'],
       mode: 'payment',
-      success_url: `${req.headers.origin}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/cancelado`,
+      success_url: `${baseUrl}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/cancelado`,
       metadata: {
         sala_id: salaId.toString(),
         nome_sala: nomeSala || `Sala ${salaId}`,
-        // TODO: Adicionar outros metadados necessários
-        // andar: andar,
-        // area: area,
         timestamp: new Date().toISOString()
       },
       customer_creation: 'always',
-      // TODO: Configurar dados do cliente se necessário
-      // billing_address_collection: 'required',
     };
 
     // Se tiver um priceId configurado, usar ele
@@ -77,29 +97,41 @@ router.post('/create-checkout-session', async (req, res) => {
       }];
     } else {
       // Caso contrário, criar preço dinamicamente
+      const precoFinal = preco || 100000; // Valor padrão se não informado
       sessionData.line_items = [{
         price_data: {
           currency: 'brl',
           product: STRIPE_CONFIG.productId,
-          unit_amount: Math.round((preco || 100000) * 100), // Stripe usa centavos
+          unit_amount: Math.round(precoFinal * 100), // Stripe usa centavos
         },
         quantity: 1,
       }];
     }
 
+    console.log('🔄 Criando sessão com dados:', JSON.stringify(sessionData, null, 2));
+
     const session = await stripe.checkout.sessions.create(sessionData);
 
-    console.log(`🎯 Sessão de checkout criada para sala ${salaId}:`, session.id);
+    console.log(`✅ Sessão de checkout criada para sala ${salaId}:`, session.id);
 
     res.json({ 
       url: session.url,
       sessionId: session.id
     });
+    
   } catch (error) {
-    console.error('❌ Erro ao criar sessão de checkout:', error);
+    console.error('❌ Erro detalhado ao criar sessão de checkout:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      param: error.param,
+      stack: error.stack
+    });
+    
     res.status(500).json({ 
       error: error.message,
-      details: 'Verifique se o STRIPE_PRODUCT_ID está configurado no .env'
+      type: error.type || 'unknown',
+      details: 'Erro interno do servidor - verifique os logs'
     });
   }
 });
