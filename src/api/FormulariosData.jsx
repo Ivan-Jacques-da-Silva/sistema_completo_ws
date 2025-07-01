@@ -1,3 +1,4 @@
+
 import Config from '../Config'
 import { Button } from 'react-bootstrap'
 import React, { useState } from 'react'
@@ -46,128 +47,6 @@ export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) 
         } finally {
             setLoading(false)
         }
-    }
-
-    return (
-        <div className="d-flex flex-column gap-2 w-100">
-            {salaAtual?.atributos?.disponibilidade?.[0]?.valor ? (
-                <>
-                    <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
-                        PRÉ-RESERVA
-                    </Button>
-                    <AnimatePresence>
-                        {mostrarModal && (
-                            <motion.div
-                                className="position-fixed top-0 start-0 w-100 h-100"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setMostrarModal(false)}
-                            >
-                                <div
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="position-absolute top-50 start-50 translate-middle p-4"
-                                    style={{
-                                        background: 'rgba(0, 69, 138, 0.9)',
-                                        borderRadius: '20px',
-                                        width: '90%',
-                                        maxWidth: '400px',
-                                        boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-                                    }}
-                                >
-                                    <h5 className="text-white text-center fw-bold mb-4">
-                                        Pré-Reserva
-                                    </h5>
-                                    <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
-                                        Preencha os dados para fazer sua pré-reserva
-                                    </p>
-
-                                    <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
-                                        <input
-                                            name="nome"
-                                            type="text"
-                                            required
-                                            placeholder="NOME COMPLETO"
-                                            className="form-control rounded-4 px-3 py-3 mb-3"
-                                        />
-                                        <input
-                                            name="cpf_cnpj"
-                                            type="text"
-                                            required
-                                            placeholder="CPF/CNPJ"
-                                            className="form-control rounded-4 px-3 py-3 mb-3"
-                                        />
-                                        <input
-                                            name="contato"
-                                            type="tel"
-                                            required
-                                            placeholder="TELEFONE"
-                                            className="form-control rounded-4 px-3 py-3 mb-3"
-                                        />
-                                        <input
-                                            name="email"
-                                            type="email"
-                                            required
-                                            placeholder="EMAIL"
-                                            className="form-control rounded-4 px-3 py-3 mb-3"
-                                        />
-                                        <button
-                                            type="submit"
-                                            disabled={loading}
-                                            className="btn fw-bold rounded-pill py-3"
-                                            style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
-                                        >
-                                            {loading ? 'ENVIANDO...' : 'ENVIAR PRÉ-RESERVA'}
-                                        </button>
-                                    </form>
-                                    <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                    {/* Mostrar botão de pagamento apenas se sala estiver disponível */}
-                    {salaDisponivel ? (
-                        <Button 
-                            variant="success" 
-                            className="fw-bold" 
-                            onClick={() => onPagamento(salaAtual)} 
-                            disabled={isSubmittingPayment}
-                            style={{
-                                backgroundColor: '#28a745',
-                                border: 'none',
-                                borderRadius: '25px',
-                                padding: '12px 24px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase',
-                                width: '100%'
-                            }}
-                        >
-                            {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR AGORA'}
-                        </Button>
-                    ) : (
-                        <Button 
-                            variant="outline-secondary" 
-                            className="fw-bold" 
-                            disabled
-                            style={{
-                                border: '2px solid #6c757d',
-                                borderRadius: '25px',
-                                padding: '12px 24px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase',
-                                width: '100%',
-                                color: '#6c757d'
-                            }}
-                        >
-                            SALA INDISPONÍVEL
-                        </Button>
-                    )}
-                </div>
-            </div>
-        )
     }
 
     // Se sala não estiver disponível, mostrar apenas pré-reserva para lista de espera
@@ -256,30 +135,103 @@ export function PreReservaForm({ salaAtual, onPagamento, isSubmittingPayment }) 
         )
     }
 
-    // Sala disponível - mostrar botão de pagamento
+    // Sala disponível - mostrar pré-reserva e botão de pagamento
     return (
-        <Button 
-            variant="success" 
-            className="fw-bold" 
-            onClick={() => onPagamento(salaAtual)} 
-            disabled={isSubmittingPayment}
-            style={{
-                backgroundColor: '#28a745',
-                border: 'none',
-                borderRadius: '25px',
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                width: '100%'
-            }}
-        >
-            {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR AGORA'}
-        </Button>
-                </>
-            ) : (
-                <p className="text-danger fw-bold">Sala Indisponível</p>
-            )}
+        <div className="d-flex flex-column gap-2 w-100">
+            <Button variant="warning" className="fw-bold text-dark" onClick={() => setMostrarModal(true)}>
+                PRÉ-RESERVA
+            </Button>
+            <AnimatePresence>
+                {mostrarModal && (
+                    <motion.div
+                        className="position-fixed top-0 start-0 w-100 h-100"
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1060 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setMostrarModal(false)}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="position-absolute top-50 start-50 translate-middle p-4"
+                            style={{
+                                background: 'rgba(0, 69, 138, 0.9)',
+                                borderRadius: '20px',
+                                width: '90%',
+                                maxWidth: '400px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                            }}
+                        >
+                            <h5 className="text-white text-center fw-bold mb-4">
+                                Pré-Reserva
+                            </h5>
+                            <p className="text-white text-center mb-4" style={{ fontSize: '0.9rem' }}>
+                                Preencha os dados para fazer sua pré-reserva
+                            </p>
+
+                            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                                <input
+                                    name="nome"
+                                    type="text"
+                                    required
+                                    placeholder="NOME COMPLETO"
+                                    className="form-control rounded-4 px-3 py-3 mb-3"
+                                />
+                                <input
+                                    name="cpf_cnpj"
+                                    type="text"
+                                    required
+                                    placeholder="CPF/CNPJ"
+                                    className="form-control rounded-4 px-3 py-3 mb-3"
+                                />
+                                <input
+                                    name="contato"
+                                    type="tel"
+                                    required
+                                    placeholder="TELEFONE"
+                                    className="form-control rounded-4 px-3 py-3 mb-3"
+                                />
+                                <input
+                                    name="email"
+                                    type="email"
+                                    required
+                                    placeholder="EMAIL"
+                                    className="form-control rounded-4 px-3 py-3 mb-3"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="btn fw-bold rounded-pill py-3"
+                                    style={{ backgroundColor: '#fff', color: '#001A47', border: '3px solid #001A47' }}
+                                >
+                                    {loading ? 'ENVIANDO...' : 'ENVIAR PRÉ-RESERVA'}
+                                </button>
+                            </form>
+                            <button onClick={() => setMostrarModal(false)} className="btn-close position-absolute top-0 end-0 m-3"></button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            {/* Botão de pagamento para salas disponíveis */}
+            <Button 
+                variant="success" 
+                className="fw-bold" 
+                onClick={() => onPagamento(salaAtual)} 
+                disabled={isSubmittingPayment}
+                style={{
+                    backgroundColor: '#28a745',
+                    border: 'none',
+                    borderRadius: '25px',
+                    padding: '12px 24px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    width: '100%'
+                }}
+            >
+                {isSubmittingPayment ? 'Processando Pagamento...' : 'PAGAR AGORA'}
+            </Button>
         </div>
     )
 }
