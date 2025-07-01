@@ -6,6 +6,7 @@ require('dotenv').config();
 // Importar middleware e rotas
 const { auditarOperacao } = require('./middleware/auditoria');
 const apiRoutes = require('./routes/index');
+const stripeRoutes = require('./stripe/routes');
 const path = require('path');
 
 const app = express();
@@ -109,6 +110,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware de auditoria
 app.use(auditarOperacao);
+
+// Configurar rotas Stripe diretamente
+app.use('/stripe', stripeRoutes);
 
 // Configurar todas as rotas através do router principal
 app.use('/api', apiRoutes);
