@@ -2033,7 +2033,8 @@ const Painel = () => {
                                             </Col>
                                         </Row>
                                     </Card.Body>
-                                </Card                            </Col>
+                </Card>
+                            </Col>
                         </Row>
                     </Modal.Body>
                     <Modal.Footer className="border-0 pt-0">
