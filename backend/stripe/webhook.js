@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const handleCheckoutCompleted = async (session) => {
   try {
     console.log('🎉 Pagamento concluído:', session.id);
+    console.log('📋 Dados da sessão:', JSON.stringify(session, null, 2));
     
     const salaId = session.metadata?.sala_id;
     if (!salaId) {
@@ -14,8 +15,36 @@ const handleCheckoutCompleted = async (session) => {
       return;
     }
 
-    // Buscar dados do cliente
-    const customer = await stripe.customers.retrieve(session.customer);
+    // Buscar dados do cliente se existir
+    let customer = null;
+    if (session.customer) {
+      try {
+        customer = await stripe.customers.retrieve(session.customer);
+      } catch (error) {
+        console.error('⚠️ Erro ao buscar dados do cliente:', error);
+      }
+    }
+
+    // Extrair CPF/CNPJ dos custom fields
+    let cpfCnpj = 'Não informado';
+    if (session.custom_fields && session.custom_fields.length > 0) {
+      const cpfField = session.custom_fields.find(field => field.key === 'cpf_cnpj');
+      if (cpfField && cpfField.text && cpfField.text.value) {
+        cpfCnpj = cpfField.text.value;
+      }
+    }
+
+    // Extrair dados de contato
+    const nomeCliente = session.customer_details?.name || customer?.name || 'Nome não informado';
+    const emailCliente = session.customer_details?.email || customer?.email || 'Não informado';
+    const telefoneCliente = session.customer_details?.phone || 'Não informado';
+    
+    console.log('👤 Dados do cliente extraídos:', {
+      nome: nomeCliente,
+      email: emailCliente,
+      telefone: telefoneCliente,
+      cpf_cnpj: cpfCnpj
+    });
     
     // Atualizar sala para indisponível
     await prisma.sala.update({
@@ -23,13 +52,13 @@ const handleCheckoutCompleted = async (session) => {
       data: { disponivel: false }
     });
 
-    // Salvar dados da pré-reserva
+    // Salvar dados da pré-reserva com informações completas
     await prisma.preReserva.create({
       data: {
-        nome: customer.name || session.customer_details?.name || 'Nome não informado',
-        cpf_cnpj: session.customer_details?.phone || 'Não informado',
-        contato: session.customer_details?.phone || session.customer_details?.email || 'Não informado',
-        email: session.customer_details?.email || customer.email || 'Não informado',
+        nome: nomeCliente,
+        cpf_cnpj: cpfCnpj,
+        contato: telefoneCliente,
+        email: emailCliente,
         visualizado: false
       }
     });

@@ -87,6 +87,24 @@ router.post('/create-checkout-session', async (req, res) => {
         timestamp: new Date().toISOString()
       },
       customer_creation: 'always',
+      billing_address_collection: 'required',
+      shipping_address_collection: {
+        allowed_countries: ['BR'],
+      },
+      phone_number_collection: {
+        enabled: true,
+      },
+      custom_fields: [
+        {
+          key: 'cpf_cnpj',
+          label: {
+            type: 'custom',
+            custom: 'CPF/CNPJ'
+          },
+          type: 'text',
+          optional: false
+        }
+      ]
     };
 
     // Se tiver um priceId configurado, usar ele
@@ -112,7 +130,11 @@ router.post('/create-checkout-session', async (req, res) => {
 
     const session = await stripe.checkout.sessions.create(sessionData);
 
-    console.log(`✅ Sessão de checkout criada para sala ${salaId}:`, session.id);
+    console.log(`✅ Sessão de checkout criada para sala ${salaId}:`, {
+      sessionId: session.id,
+      url: session.url,
+      metadata: session.metadata
+    });
 
     res.json({ 
       url: session.url,

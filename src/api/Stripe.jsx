@@ -13,13 +13,31 @@ class StripeAPI {
     }
   }
 
-  static async redirectToCheckout(salaId, nomeSala) {
+  static async redirectToCheckout(salaData) {
     try {
-      // Usar o link fixo fornecido
-      const checkoutUrl = 'https://book.stripe.com/4gMdRb1N6cEX5xtdg104800';
+      const response = await fetch(`${CONFIG.API_URL}/stripe/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          salaId: salaData.id,
+          preco: salaData.preco,
+          nomeSala: salaData.nome
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
       
-      // Redirecionar para o checkout externo
-      window.location.href = checkoutUrl;
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('URL de checkout não recebida');
+      }
       
     } catch (error) {
       console.error('Erro ao redirecionar para checkout:', error);
