@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 require('dotenv').config();
+console.log('🔐 STRIPE_SECRET_KEY carregada:', process.env.STRIPE_SECRET_KEY);
+
 
 // Importar middleware e rotas
 const { auditarOperacao } = require('./middleware/auditoria');
