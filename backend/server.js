@@ -125,4 +125,11 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Frontend deve acessar: http://localhost:${PORT}`);
   console.log(`📊 Sistema de auditoria ativo`);
   console.log(`🔒 Rotas modulares configuradas`);
+
+  // Log das configurações do Stripe (sem expor as chaves)
+  console.log('🔧 Verificando configurações do Stripe:');
+  console.log('- STRIPE_PUBLIC_KEY:', process.env.STRIPE_PUBLIC_KEY ? 'Configurada' : '❌ NÃO CONFIGURADA');
+  console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Configurada' : '❌ NÃO CONFIGURADA');
+  console.log('- STRIPE_PRODUCT_ID:', process.env.STRIPE_PRODUCT_ID || '❌ NÃO CONFIGURADO');
+  console.log('- STRIPE_WEBHOOK_SECRET:', process.env.STRIPE_WEBHOOK_SECRET ? 'Configurado' : '❌ NÃO CONFIGURADO');
 });

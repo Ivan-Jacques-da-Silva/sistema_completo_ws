@@ -57,7 +57,22 @@ router.post('/create-checkout-session', async (req, res) => {
       });
     }
 
-    // Verificar configurações da Stripe
+    // Log detalhado das configurações (sem expor chaves)
+    console.log('🔧 Verificando configurações da Stripe...');
+    console.log('- Public Key:', STRIPE_CONFIG.publicKey ? 'Configurada' : 'NÃO CONFIGURADA');
+    console.log('- Secret Key:', STRIPE_CONFIG.secretKey ? `Configurada (${STRIPE_CONFIG.secretKey.length} chars)` : 'NÃO CONFIGURADA');
+    console.log('- Product ID:', STRIPE_CONFIG.productId || 'NÃO CONFIGURADO');
+    console.log('- Webhook Secret:', STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO');
+
+    // Verificar se as configurações básicas estão presentes
+    if (!STRIPE_CONFIG.secretKey) {
+      console.error('❌ STRIPE_SECRET_KEY não encontrada no .env');
+      return res.status(500).json({ 
+        error: 'Configuração do Stripe incompleta',
+        details: 'STRIPE_SECRET_KEY não encontrada no arquivo .env'
+      });
+    }
+
     if (!STRIPE_CONFIG.productId) {
       console.error('❌ STRIPE_PRODUCT_ID não configurado');
       return res.status(500).json({ 
@@ -66,11 +81,11 @@ router.post('/create-checkout-session', async (req, res) => {
       });
     }
 
-    if (!STRIPE_CONFIG.secretKey || STRIPE_CONFIG.secretKey.length < 50) {
-      console.error('❌ STRIPE_SECRET_KEY inválida ou incompleta');
+    if (STRIPE_CONFIG.secretKey.length < 50) {
+      console.error('❌ STRIPE_SECRET_KEY muito curta ou inválida');
       return res.status(500).json({ 
         error: 'Chave secreta da Stripe inválida',
-        details: 'Verifique a STRIPE_SECRET_KEY no .env'
+        details: 'STRIPE_SECRET_KEY deve ter pelo menos 50 caracteres'
       });
     }
 
