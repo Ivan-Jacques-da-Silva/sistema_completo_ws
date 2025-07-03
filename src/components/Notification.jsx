@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Modal, Button, Alert } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,10 +45,10 @@ const Notification = ({ show, onHide, type, title, message, onConfirm, confirmTe
         >
           {getIcon()}
         </motion.div>
-        
+
         <h5 className="mt-3 mb-2">{title}</h5>
         <p className="text-muted mb-4">{message}</p>
-        
+
         <Button 
           variant={getVariant()}
           onClick={onConfirm || onHide}
