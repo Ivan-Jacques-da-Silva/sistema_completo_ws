@@ -4,24 +4,25 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const path = require('path');
 
+const { auditarOperacao } = require('./middleware/auditoria');
+const apiRoutes = require('./routes/index');
+const stripeRoutes = require('./stripe/routes');
+const { stripe, STRIPE_CONFIG } = require('./stripe/config');
+const { processWebhookEvent } = require('./stripe/webhook');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// ========== LOG INICIAL ==========
 console.log('🔐 ========== VERIFICAÇÃO INICIAL DO .ENV ==========');
 console.log('🔐 STRIPE_SECRET_KEY carregada:', process.env.STRIPE_SECRET_KEY ? `${process.env.STRIPE_SECRET_KEY.substring(0, 15)}...` : 'UNDEFINED');
 console.log('🔐 STRIPE_PUBLIC_KEY carregada:', process.env.STRIPE_PUBLIC_KEY ? `${process.env.STRIPE_PUBLIC_KEY.substring(0, 15)}...` : 'UNDEFINED');
 console.log('🔐 STRIPE_WEBHOOK_SECRET carregada:', process.env.STRIPE_WEBHOOK_SECRET ? `${process.env.STRIPE_WEBHOOK_SECRET.substring(0, 15)}...` : 'UNDEFINED');
 console.log('🔐 ===============================================');
 
-
-// Importar middleware e rotas
-const { auditarOperacao } = require('./middleware/auditoria');
-const apiRoutes = require('./routes/index');
-const stripeRoutes = require('./stripe/routes');
-const path = require('path');
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Sistema de Logs Melhorado
+// ========== LOGS DE ERRO ==========
 const logError = (error, req = null, additionalData = {}) => {
   const timestamp = new Date().toISOString();
   const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
@@ -38,50 +39,31 @@ Additional Data: ${JSON.stringify(additionalData, null, 2)}
 ${'='.repeat(80)}
 `;
 
-  // Criar diretório de logs se não existir
-  if (!fs.existsSync('logs')) {
-    fs.mkdirSync('logs');
-  }
-
-  // Salvar no arquivo de log
-  const logFile = `logs/error-${new Date().toISOString().split('T')[0]}.log`;
+  if (!fs.existsSync('logs')) fs.mkdirSync('logs');
+  const logFile = `logs/error-${timestamp.split('T')[0]}.log`;
   fs.appendFileSync(logFile, logEntry);
-
   console.error(`[${timestamp}] ${route} - ERROR:`, error.message);
 };
 
-// Log de operações (sucessos)
 const logOperation = (operation, req, data = {}) => {
   const timestamp = new Date().toISOString();
   const route = req ? `${req.method} ${req.path}` : 'SYSTEM';
   const ip = req ? (req.ip || req.connection.remoteAddress) : 'UNKNOWN';
-
   const logEntry = `[${timestamp}] ${route} - ${operation} - IP: ${ip} - Data: ${JSON.stringify(data)}\n`;
 
-  if (!fs.existsSync('logs')) {
-    fs.mkdirSync('logs');
-  }
-
-  const logFile = `logs/operations-${new Date().toISOString().split('T')[0]}.log`;
+  if (!fs.existsSync('logs')) fs.mkdirSync('logs');
+  const logFile = `logs/operations-${timestamp.split('T')[0]}.log`;
   fs.appendFileSync(logFile, logEntry);
-
   console.log(`[${timestamp}] ${route} - ${operation}`);
 };
 
-// Middleware global de tratamento de erros
+// ========== TRATAMENTO GLOBAL DE ERROS ==========
 const errorHandler = (err, req, res, next) => {
-  // Log detalhado do erro
-  logError(err, req, {
-    body: req.body,
-    params: req.params,
-    query: req.query
-  });
+  logError(err, req, { body: req.body, params: req.params, query: req.query });
 
-  // Resposta amigável para o frontend
   let mensagem = 'Erro interno do servidor';
   let codigo = 'INTERNAL_ERROR';
 
-  // Tratar diferentes tipos de erro
   if (err.code === 'P2002') {
     mensagem = 'Dados duplicados encontrados';
     codigo = 'DUPLICATE_DATA';
@@ -99,9 +81,9 @@ const errorHandler = (err, req, res, next) => {
     codigo,
     timestamp: new Date().toISOString()
   });
-}; 
+};
 
-// Middleware
+// ========== CORS ==========
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -113,34 +95,52 @@ app.use(cors({
   credentials: true
 }));
 
-// Middleware específico para webhooks (raw body)
-app.use('/stripe/webhook*', express.raw({ type: 'application/json' }));
+// Webhook de TESTE
+app.post('/stripe/webhook/teste', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  try {
+    const event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_CONFIG.webhookSecret);
+    console.log('✅ Webhook TESTE recebido:', event.type);
+    await processWebhookEvent(event); // usa a mesma função
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error('❌ Erro webhook TESTE:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
 
-// Middleware JSON para todas as outras rotas (incluindo outras rotas Stripe)
+// Webhook REAL
+app.post('/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  try {
+    const event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_CONFIG.webhookSecret);
+    console.log('✅ Webhook REAL recebido:', event.type);
+    await processWebhookEvent(event); // mesma função
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error('❌ Erro webhook REAL:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+
+
+// ========== BODY PARSER PARA ROTAS NORMAIS ==========
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Configurar rotas Stripe
+// ========== ROTAS ==========
 app.use('/stripe', stripeRoutes);
-
-// Servir arquivos estáticos das imagens
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Middleware de auditoria
 app.use(auditarOperacao);
-
-// Configurar todas as rotas através do router principal  
 app.use('/api', apiRoutes);
-
-// Middleware de tratamento de erros (deve estar por último)
 app.use(errorHandler);
 
+// ========== START SERVER ==========
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor rodando em http://0.0.0.0:${PORT}`);
   console.log(`🌐 Frontend deve acessar: http://localhost:${PORT}`);
   console.log(`📊 Sistema de auditoria ativo`);
   console.log(`🔒 Rotas modulares configuradas`);
-
-  // Log das configurações do Stripe (sem expor as chaves)
   console.log('🔧 Verificando configurações do Stripe:');
   console.log('- STRIPE_PUBLIC_KEY:', process.env.STRIPE_PUBLIC_KEY ? 'Configurada' : '❌ NÃO CONFIGURADA');
   console.log('- STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Configurada' : '❌ NÃO CONFIGURADA');
