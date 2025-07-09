@@ -4,30 +4,38 @@ const { processWebhookEvent } = require('./webhook');
 
 const router = express.Router();
 
-// Webhook endpoint - deve usar express.raw() para preservar o body
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+// Webhook endpoint para PRODUÇÃO - https://api.wallstreetnr.com.br/stripe/webhook
+router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
 
-  // Log detalhado para debugging
-  console.log('🔍 Webhook recebido:', {
-    signature: sig ? 'Presente' : 'Ausente',
-    bodySize: req.body ? req.body.length : 0,
-    webhookSecret: STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO'
+  // Log detalhado para debugging - PRODUÇÃO
+  console.log('🔍 ========== WEBHOOK PRODUÇÃO RECEBIDO ==========');
+  console.log('🔍 Timestamp:', new Date().toISOString());
+  console.log('🔍 URL completa:', req.url);
+  console.log('🔍 Método:', req.method);
+  console.log('🔍 Headers relevantes:', {
+    'stripe-signature': sig ? 'Presente' : 'Ausente',
+    'content-type': req.headers['content-type'],
+    'user-agent': req.headers['user-agent']
   });
+  console.log('🔍 Body size:', req.body ? req.body.length : 0);
+  console.log('🔍 Webhook secret:', STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO');
+  console.log('🔍 Endpoint: /stripe/webhook (PRODUÇÃO)');
+  console.log('🔍 =============================================');
 
   // Verificar se o webhook secret está configurado
   if (!STRIPE_CONFIG.webhookSecret) {
-    console.error('❌ STRIPE_WEBHOOK_SECRET não configurado');
+    console.error('❌ STRIPE_WEBHOOK_SECRET não configurado para PRODUÇÃO');
     return res.status(500).json({ error: 'Webhook secret não configurado' });
   }
 
   try {
     // Verificar assinatura do webhook
     event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_CONFIG.webhookSecret);
-    console.log(`✅ Assinatura verificada - Evento: ${event.type}`);
+    console.log(`✅ Assinatura verificada - Evento PRODUÇÃO: ${event.type}`);
   } catch (err) {
-    console.error('❌ Erro na verificação da assinatura do webhook:', {
+    console.error('❌ Erro na verificação da assinatura do webhook PRODUÇÃO:', {
       message: err.message,
       signature: sig,
       bodyPreview: req.body ? req.body.toString().substring(0, 100) + '...' : 'Body vazio'
@@ -39,11 +47,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     // Processar o evento
     await processWebhookEvent(event);
 
-    console.log(`✅ Webhook processado com sucesso: ${event.type}`);
-    res.status(200).json({ received: true, eventType: event.type });
+    console.log(`✅ Webhook PRODUÇÃO processado com sucesso: ${event.type}`);
+    res.status(200).json({ received: true, eventType: event.type, environment: 'production' });
 
   } catch (error) {
-    console.error('❌ Erro ao processar webhook:', {
+    console.error('❌ Erro ao processar webhook PRODUÇÃO:', {
       eventType: event.type,
       error: error.message,
       stack: error.stack
@@ -53,7 +61,71 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     res.status(200).json({
       received: false,
       error: 'Erro interno do servidor',
-      message: error.message
+      message: error.message,
+      environment: 'production'
+    });
+  }
+});
+
+// Webhook endpoint para TESTE - https://api.wallstreetnr.com.br/stripe/webhook/teste
+router.post('/webhook/teste', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  // Log detalhado para debugging - TESTE
+  console.log('🔍 ========== WEBHOOK TESTE RECEBIDO ==========');
+  console.log('🔍 Timestamp:', new Date().toISOString());
+  console.log('🔍 URL completa:', req.url);
+  console.log('🔍 Método:', req.method);
+  console.log('🔍 Headers relevantes:', {
+    'stripe-signature': sig ? 'Presente' : 'Ausente',
+    'content-type': req.headers['content-type'],
+    'user-agent': req.headers['user-agent']
+  });
+  console.log('🔍 Body size:', req.body ? req.body.length : 0);
+  console.log('🔍 Webhook secret:', STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO');
+  console.log('🔍 Endpoint: /stripe/webhook/teste (TESTE)');
+  console.log('🔍 ===========================================');
+
+  // Verificar se o webhook secret está configurado
+  if (!STRIPE_CONFIG.webhookSecret) {
+    console.error('❌ STRIPE_WEBHOOK_SECRET não configurado para TESTE');
+    return res.status(500).json({ error: 'Webhook secret não configurado' });
+  }
+
+  try {
+    // Verificar assinatura do webhook
+    event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_CONFIG.webhookSecret);
+    console.log(`✅ Assinatura verificada - Evento TESTE: ${event.type}`);
+  } catch (err) {
+    console.error('❌ Erro na verificação da assinatura do webhook TESTE:', {
+      message: err.message,
+      signature: sig,
+      bodyPreview: req.body ? req.body.toString().substring(0, 100) + '...' : 'Body vazio'
+    });
+    return res.status(400).send(`Webhook signature verification failed: ${err.message}`);
+  }
+
+  try {
+    // Processar o evento
+    await processWebhookEvent(event);
+
+    console.log(`✅ Webhook TESTE processado com sucesso: ${event.type}`);
+    res.status(200).json({ received: true, eventType: event.type, environment: 'test' });
+
+  } catch (error) {
+    console.error('❌ Erro ao processar webhook TESTE:', {
+      eventType: event.type,
+      error: error.message,
+      stack: error.stack
+    });
+
+    // Retornar 200 para evitar reenvios desnecessários do Stripe
+    res.status(200).json({
+      received: false,
+      error: 'Erro interno do servidor',
+      message: error.message,
+      environment: 'test'
     });
   }
 });
@@ -152,23 +224,16 @@ router.post('/create-checkout-session', async (req, res) => {
     // Não usa o valor do imóvel, sempre cobra R$25000,00 como entrada
     const VALOR_ENTRADA_FIXO = 25000.00; // valor em reais
 
-    // Se tiver um priceId configurado, usar ele
-    if (priceId) {
-      sessionData.line_items = [{
-        price: priceId,
-        quantity: 1,
-      }];
-    } else {
-      // Valor fixo de R$ 250,00 para pré-reserva (entrada)
-      sessionData.line_items = [{
-        price_data: {
-          currency: 'brl',
-          product: STRIPE_CONFIG.productId,
-          unit_amount: Math.round(VALOR_ENTRADA_FIXO * 100), // R$25000,00 em centavos = 2500
-        },
-        quantity: 1,
-      }];
-    }
+    // Sempre usar price_data para evitar problemas com Price IDs inexistentes
+    console.log(`💰 Criando price_data com valor fixo: R$ ${VALOR_ENTRADA_FIXO}`);
+    sessionData.line_items = [{
+      price_data: {
+        currency: 'brl',
+        product: STRIPE_CONFIG.productId,
+        unit_amount: Math.round(VALOR_ENTRADA_FIXO * 100), // R$25000,00 em centavos
+      },
+      quantity: 1,
+    }];
 
     console.log('🔄 Criando sessão com dados:', JSON.stringify(sessionData, null, 2));
 
@@ -214,11 +279,52 @@ router.get('/webhook/test', (req, res) => {
 // Endpoint de informações sobre webhook (apenas GET)
 router.get('/webhook/teste', (req, res) => {
   res.json({
-    status: 'Endpoint de webhook de teste removido',
-    message: 'Use apenas /stripe/webhook para webhooks',
-    webhookUrl: `${req.protocol}://${req.get('host')}/stripe/webhook`,
-    webhookSecret: STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO'
+    status: 'Endpoints de webhook configurados',
+    message: 'Dois endpoints disponíveis para webhooks',
+    webhookUrls: {
+      producao: `${req.protocol}://${req.get('host')}/stripe/webhook`,
+      teste: `${req.protocol}://${req.get('host')}/stripe/webhook/teste`
+    },
+    webhookSecret: STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO',
+    recomendacao: 'Configure webhook de produção para /stripe/webhook e teste para /stripe/webhook/teste'
   });
+});
+
+// Endpoint de teste para verificar se todas as configurações estão corretas
+router.get('/test/config', (req, res) => {
+  try {
+    const config = {
+      status: 'success',
+      environment: STRIPE_CONFIG.destinationName,
+      timestamp: new Date().toISOString(),
+      configurations: {
+        publicKey: STRIPE_CONFIG.publicKey ? 'Configurada' : 'NÃO CONFIGURADA',
+        secretKey: STRIPE_CONFIG.secretKey ? 'Configurada' : 'NÃO CONFIGURADA',
+        productId: STRIPE_CONFIG.productId || 'NÃO CONFIGURADO',
+        priceId: STRIPE_CONFIG.priceId || 'NÃO CONFIGURADO',
+        webhookSecret: STRIPE_CONFIG.webhookSecret ? 'Configurado' : 'NÃO CONFIGURADO',
+        checkoutUrl: STRIPE_CONFIG.checkoutUrl || 'NÃO CONFIGURADA'
+      },
+      stripeConnection: 'OK - Stripe inicializado com sucesso',
+      recommendations: []
+    };
+
+    // Verificar se todas as configurações obrigatórias estão presentes
+    if (!STRIPE_CONFIG.secretKey) config.recommendations.push('STRIPE_SECRET_KEY obrigatória');
+    if (!STRIPE_CONFIG.publicKey) config.recommendations.push('STRIPE_PUBLIC_KEY obrigatória');
+    if (!STRIPE_CONFIG.productId) config.recommendations.push('STRIPE_PRODUCT_ID obrigatório');
+    if (!STRIPE_CONFIG.webhookSecret) config.recommendations.push('STRIPE_WEBHOOK_SECRET obrigatório');
+    if (!STRIPE_CONFIG.priceId) config.recommendations.push('STRIPE_PRICE_ID recomendado para preços fixos');
+
+    res.json(config);
+    
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Endpoint para debug - verificar última atualização de sala

@@ -1,8 +1,15 @@
+// IMPORTANTE: Carregar dotenv PRIMEIRO, antes de qualquer outra importação
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-require('dotenv').config();
-console.log('🔐 STRIPE_SECRET_KEY carregada:', process.env.STRIPE_SECRET_KEY);
+
+console.log('🔐 ========== VERIFICAÇÃO INICIAL DO .ENV ==========');
+console.log('🔐 STRIPE_SECRET_KEY carregada:', process.env.STRIPE_SECRET_KEY ? `${process.env.STRIPE_SECRET_KEY.substring(0, 15)}...` : 'UNDEFINED');
+console.log('🔐 STRIPE_PUBLIC_KEY carregada:', process.env.STRIPE_PUBLIC_KEY ? `${process.env.STRIPE_PUBLIC_KEY.substring(0, 15)}...` : 'UNDEFINED');
+console.log('🔐 STRIPE_WEBHOOK_SECRET carregada:', process.env.STRIPE_WEBHOOK_SECRET ? `${process.env.STRIPE_WEBHOOK_SECRET.substring(0, 15)}...` : 'UNDEFINED');
+console.log('🔐 ===============================================');
 
 
 // Importar middleware e rotas
@@ -105,7 +112,15 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// Middleware específico para webhooks (raw body)
+app.use('/stripe/webhook*', express.raw({ type: 'application/json' }));
+
+// Middleware JSON para todas as outras rotas (incluindo outras rotas Stripe)
 app.use(express.json());
+
+// Configurar rotas Stripe
+app.use('/stripe', stripeRoutes);
 
 // Servir arquivos estáticos das imagens
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -113,10 +128,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Middleware de auditoria
 app.use(auditarOperacao);
 
-// Configurar rotas Stripe diretamente
-app.use('/stripe', stripeRoutes);
-
-// Configurar todas as rotas através do router principal
+// Configurar todas as rotas através do router principal  
 app.use('/api', apiRoutes);
 
 // Middleware de tratamento de erros (deve estar por último)
