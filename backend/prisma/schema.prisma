@@ -1,0 +1,96 @@
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"] // producao
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PreReserva {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  cpf_cnpj   String
+  contato    String
+  email      String
+  visualizado Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("pre_reservas")
+}
+
+model Contraproposta {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  cpf_cnpj   String
+  contato    String
+  email      String
+  proposta   String
+  visualizado Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("contrapropostas")
+}
+
+model AgendamentoReuniao {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  cpf_cnpj   String
+  contato    String
+  email      String
+  data       String
+  hora       String
+  visualizado Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("agendamentos_reuniao")
+}
+
+model Admin {
+  id       Int      @id @default(autoincrement())
+  usuario  String   @unique
+  senha    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Sala {
+  id           Int      @id @default(autoincrement())
+  numero       String
+  andar        Int
+  nome         String
+  area         Float
+  posicao      String
+  preco        Float
+  disponivel   Boolean  @default(true)
+  imagem       String?
+  planta       String?
+  proposta_pdf String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("salas")
+}
+
+
+model HistoricoAlteracoes {
+  id           Int      @id @default(autoincrement())
+  tabela       String   // Nome da tabela alterada
+  operacao     String   // CREATE, UPDATE, DELETE
+  registro_id  Int?     // ID do registro alterado
+  dados_antes  Json?    // Dados antes da alteração
+  dados_depois Json?    // Dados depois da alteração
+  usuario      String   // Usuário que fez a alteração
+  ip_address   String?  // IP do usuário
+  user_agent   String?  // User Agent do navegador
+  createdAt    DateTime @default(now())
+
+  @@map("historico_alteracoes")
+}

@@ -1,0 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependências e builds
+node_modules
+dist
+dist-ssr
+*.local
+
+# Diretórios e arquivos de editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.env
+.env.example
+/backend/.env
+/backend/.env.example
+modo_teste_ou_producao.txt
+GUIA_CONFIGURACAO_STRIPE.md
+ALTERACOES_STRIPE_TESTE.txt
+/ALTERACOES_STRIPE_TESTE.txt
+

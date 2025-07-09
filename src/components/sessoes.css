@@ -1,0 +1,85 @@
+/* sessoes.css */
+
+@keyframes girar {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.icone-animado {
+  animation: girar 2s linear infinite;
+}
+
+/* Botão de andar */
+.botao-andar {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Container do prédio fixo */
+.predio-container {
+  position: relative;
+  width: 374px;
+  /* height: 935px; */
+}
+
+.predio-container img {
+  border-radius: 4px;
+}
+
+.logo-header {
+  max-width: 300px;
+  padding: 60px 0 30px 0;
+  z-index: 4;
+}
+
+
+.linha-andares {
+  width: 190px;
+  height: 1px;
+  /* background-color: #FF8C00; */
+  /* border-radius: 2px; */
+}
+
+.linha-andares-texto {
+  left: 360px;
+}
+
+@media (min-width: 768px) {
+  .logo-header {
+    position: absolute;
+    top: 60px;
+    left: 60px;
+  }
+}
+
+@media (max-width: 767px) {
+  .bem-vindo-mobile {
+    position: static !important;
+    margin-top: 40px;
+    margin-bottom: 50px;
+    text-align: center;
+  }
+
+  .linha-andares {
+    width: 140px !important;
+    /* ou o tamanho que quiser, metade */
+  }
+
+  .linha-andares-texto {
+    left: 310px!important;
+  }
+
+  .predio-container {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding-bottom: 20px;
+  }
+}
