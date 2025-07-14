@@ -69,7 +69,12 @@ const Salas = ({
                     />
                     <i
                       className={`bi fs-5 ${disponivel ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'}`}
-                      style={{ position: 'absolute', top: '10px', right: '10px' }}
+                      style={{ 
+                        position: 'absolute', 
+                        top: larguraTela >= 1200 ? '10px' : 'auto',
+                        bottom: larguraTela >= 1200 ? 'auto' : '-101px',
+                        right: '10px' 
+                      }}
                     />
                   </div>
                   <div className="text-start">

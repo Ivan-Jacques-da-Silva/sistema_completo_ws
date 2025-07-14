@@ -1,7 +1,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"] // producao
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -15,9 +15,13 @@ model PreReserva {
   cpf_cnpj   String
   contato    String
   email      String
+  sala_id    Int?
+  nome_sala  String?
   visualizado Boolean @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  sala       Sala?    @relation(fields: [sala_id], references: [id])
 
   @@map("pre_reservas")
 }
@@ -62,34 +66,35 @@ model Admin {
 }
 
 model Sala {
-  id           Int      @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   numero       String
   andar        Int
   nome         String
   area         Float
   posicao      String
   preco        Float
-  disponivel   Boolean  @default(true)
+  disponivel   Boolean       @default(true)
   imagem       String?
   planta       String?
   proposta_pdf String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  preReservas  PreReserva[]
 
   @@map("salas")
 }
 
-
 model HistoricoAlteracoes {
   id           Int      @id @default(autoincrement())
-  tabela       String   // Nome da tabela alterada
-  operacao     String   // CREATE, UPDATE, DELETE
-  registro_id  Int?     // ID do registro alterado
-  dados_antes  Json?    // Dados antes da alteração
-  dados_depois Json?    // Dados depois da alteração
-  usuario      String   // Usuário que fez a alteração
-  ip_address   String?  // IP do usuário
-  user_agent   String?  // User Agent do navegador
+  tabela       String
+  operacao     String
+  registro_id  Int?
+  dados_antes  Json?
+  dados_depois Json?
+  usuario      String
+  ip_address   String?
+  user_agent   String?
   createdAt    DateTime @default(now())
 
   @@map("historico_alteracoes")

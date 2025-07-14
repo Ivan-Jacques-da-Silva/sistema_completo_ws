@@ -150,10 +150,21 @@ router.post('/agendar-reuniao', async (req, res) => {
 
 // Rotas administrativas para visualizar formulários
 
-// Listar todas as pré-reservas (ADMIN)
+// Listar pré-reservas para admin
 router.get('/admin/pre-reservas', authenticateAdmin, async (req, res) => {
   try {
     const preReservas = await prisma.preReserva.findMany({
+      include: {
+        sala: {
+          select: {
+            id: true,
+            numero: true,
+            nome: true,
+            andar: true,
+            preco: true
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
     res.json({ sucesso: true, data: preReservas });

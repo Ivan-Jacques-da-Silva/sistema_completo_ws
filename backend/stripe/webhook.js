@@ -181,7 +181,8 @@ const handleCheckoutCompleted = async (session) => {
         cpf_cnpj: cpfCnpj,
         contato: telefoneCliente,
         email: emailCliente,
-        visualizado: false
+        sala_id: parseInt(salaId),
+        nome_sala: salaExistente.nome // Incluir o nome da sala comprada
       }
     });
     
