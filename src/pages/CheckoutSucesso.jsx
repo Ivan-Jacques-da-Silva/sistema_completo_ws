@@ -107,7 +107,7 @@ function CheckoutSucesso() {
               marginBottom: '30px',
               lineHeight: '1.6'
             }}>
-              Sua reserva foi processada com sucesso. Em breve entraremos em contato para finalizar o processo.
+              Sua reserva foi efetuada com sucesso. Em breve entraremos em contato para concluir sua negociação! Seja Bem Vindo ao Novo! Wall Street Corporate
             </p>
             
             {dadosSessao?.metadata?.nome_sala && (

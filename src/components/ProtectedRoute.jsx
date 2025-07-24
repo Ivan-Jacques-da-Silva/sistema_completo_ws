@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
@@ -7,10 +6,12 @@ const ProtectedRoute = ({ children }) => {
     const navigate = useNavigate();
     const [isChecking, setIsChecking] = useState(true);
     const token = localStorage.getItem('admin-token');
+    const usuario = localStorage.getItem('usuario');
 
     useEffect(() => {
         const checkAuth = () => {
-            if (!token) {
+            if (!token || !usuario) {
+                localStorage.clear();
                 navigate('/login', { replace: true });
             } else {
                 setIsChecking(false);
@@ -18,9 +19,9 @@ const ProtectedRoute = ({ children }) => {
         };
 
         checkAuth();
-    }, [token, navigate]);
+    }, [token, navigate, usuario]);
 
-    if (isChecking || !token) {
+    if (isChecking) {
         return (
             <Container className="d-flex justify-content-center align-items-center min-vh-100">
                 <div className="text-center">

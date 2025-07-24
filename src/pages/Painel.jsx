@@ -503,8 +503,15 @@ const Painel = () => {
     };
 
     const logout = () => {
-        localStorage.removeItem("admin-token");
-        navigate("/login");
+        // Limpar completamente o localStorage
+        localStorage.clear();
+        // Ou remover especificamente
+        localStorage.removeItem('admin-token');
+        localStorage.removeItem('usuario');
+        localStorage.removeItem('permissoes');
+
+        // Forçar reload da página para garantir limpeza
+        window.location.href = '/login';
     };
 
     const formatarData = (dataString) => {
@@ -769,6 +776,20 @@ const Painel = () => {
             buscarHistorico(historicoPage);
         }
     }, [activeTab, historicoPage]);
+
+    useEffect(() => {
+        const permissoesStorage = localStorage.getItem('permissoes');
+        const usuario = localStorage.getItem('usuario');
+
+        console.log('Debug - Usuário:', usuario);
+        console.log('Debug - Permissões raw:', permissoesStorage);
+
+        if (permissoesStorage) {
+            const permissoesArray = JSON.parse(permissoesStorage);
+            console.log('Debug - Permissões array:', permissoesArray);
+            setPermissoes(permissoesArray);
+        }
+    }, []);
 
     return (
         <Container

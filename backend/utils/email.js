@@ -2,21 +2,24 @@
 const nodemailer = require('nodemailer');
 
 // Configuração do transporter (usando Gmail como exemplo)
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'seu-email@gmail.com', // Configure no .env
-    pass: process.env.EMAIL_PASS || 'sua-senha-app'        // Configure no .env
-  }
+const transporter = nodemailer.createTransport({
+    host: 'smtp.hostinger.com',
+    port: 587,
+    secure: false,
+
+    auth: {
+        user: process.env.EMAIL_USER || 'seu-email@gmail.com', // Configure no .env
+        pass: process.env.EMAIL_PASS || 'sua-senha-app'        // Configure no .env
+    }
 });
 
 // Função para enviar notificação de contraproposta
 const enviarNotificacaoContraproposta = async (dados) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER || 'seu-email@gmail.com',
-    to: 'gerencia01@wcostella.com.br',
-    subject: '🏢 Nova Contraproposta Recebida - Wall Street Corporate',
-    html: `
+    const mailOptions = {
+        from: process.env.EMAIL_USER || 'seu-email@gmail.com',
+        to: 'gerencia01@wcostella.com.br',
+        subject: '🏢 Nova Contraproposta Recebida - Wall Street Corporate',
+        html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2c3e50;">Nova Contraproposta Recebida</h2>
         
@@ -39,23 +42,23 @@ const enviarNotificacaoContraproposta = async (dados) => {
         </p>
       </div>
     `
-  };
+    };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('✅ Email de contraproposta enviado com sucesso');
-  } catch (error) {
-    console.error('❌ Erro ao enviar email de contraproposta:', error);
-  }
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('✅ Email de contraproposta enviado com sucesso');
+    } catch (error) {
+        console.error('❌ Erro ao enviar email de contraproposta:', error);
+    }
 };
 
 // Função para enviar notificação de agendamento
 const enviarNotificacaoAgendamento = async (dados) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER || 'seu-email@gmail.com',
-    to: 'gerencia01@wcostella.com.br',
-    subject: '📅 Nova Reunião Agendada - Wall Street Corporate',
-    html: `
+    const mailOptions = {
+        from: process.env.EMAIL_USER || 'seu-email@gmail.com',
+        to: 'gerencia01@wcostella.com.br',
+        subject: '📅 Nova Reunião Agendada - Wall Street Corporate',
+        html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2c3e50;">Nova Reunião Agendada</h2>
         
@@ -81,17 +84,17 @@ const enviarNotificacaoAgendamento = async (dados) => {
         </p>
       </div>
     `
-  };
+    };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('✅ Email de agendamento enviado com sucesso');
-  } catch (error) {
-    console.error('❌ Erro ao enviar email de agendamento:', error);
-  }
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('✅ Email de agendamento enviado com sucesso');
+    } catch (error) {
+        console.error('❌ Erro ao enviar email de agendamento:', error);
+    }
 };
 
 module.exports = {
-  enviarNotificacaoContraproposta,
-  enviarNotificacaoAgendamento
+    enviarNotificacaoContraproposta,
+    enviarNotificacaoAgendamento
 };
