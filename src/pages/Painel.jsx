@@ -44,7 +44,7 @@ import Notification from "../components/Notification";
 
 const Painel = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState("salas");
+    const [activeTab, setActiveTab] = useState("formularios");
     const [preReservas, setPreReservas] = useState([]);
     const [contrapropostas, setContrapropostas] = useState([]);
     const [agendamentos, setAgendamentos] = useState([]);
@@ -57,6 +57,8 @@ const Painel = () => {
     const [loading, setLoading] = useState(false);
     const [imagemPreview, setImagemPreview] = useState(null);
     const [plantaPreview, setPlantaPreview] = useState(null);
+    const [permissoes, setPermissoes] = useState([]);
+    const [usuario, setUsuario] = useState('');
 
     // Estados para paginação e filtros
     const [paginaAtual, setPaginaAtual] = useState(1);
@@ -65,6 +67,23 @@ const Painel = () => {
     const itensPorPagina = 10;
 
     useEffect(() => {
+        // Carregar permissões do usuário
+        const permissoesUsuario = JSON.parse(localStorage.getItem('permissoes') || '[]');
+        const nomeUsuario = localStorage.getItem('usuario') || '';
+        setPermissoes(permissoesUsuario);
+        setUsuario(nomeUsuario);
+
+        // Definir aba padrão baseada no usuário
+        if (nomeUsuario === 'wallstreet' && permissoesUsuario.includes('salas')) {
+            setActiveTab('salas');
+        } else if (nomeUsuario === 'correto' && permissoesUsuario.includes('formularios')) {
+            setActiveTab('formularios');
+        } else if (permissoesUsuario.includes('formularios')) {
+            setActiveTab('formularios');
+        } else if (permissoesUsuario.includes('salas')) {
+            setActiveTab('salas');
+        }
+
         const token = localStorage.getItem("admin-token");
         if (!token) {
             navigate("/login");
@@ -88,6 +107,10 @@ const Painel = () => {
             </Container>
         );
     }
+
+    const temPermissao = (permissao) => {
+        return permissoes.includes(permissao);
+    };
 
     const carregarDados = async () => {
         try {
@@ -813,450 +836,108 @@ const Painel = () => {
                     className="mb-4"
                     variant="pills"
                 >
-                    <Tab
-                        eventKey="salas"
-                        title={
-                            <span className="d-flex align-items-center px-3 py-2">
-                                <Building className="me-2" size={16} />
-                                Gerenciar Salas
-                            </span>
-                        }
-                    >
-                        <Card className="shadow-sm border-0 mb-4">
-                            <Card.Header className="bg-white border-0 py-4">
-                                <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
-                                    <div className="mb-3 mb-lg-0">
-                                        <h4 className="mb-1 d-flex align-items-center">
-                                            <Building className="me-2" />
-                                            Salas Cadastradas
-                                        </h4>
-                                        <p className="text-muted mb-0">
-                                            <Badge
-                                                bg="secondary"
-                                                className="me-2"
-                                            >
-                                                {salasFiltradas.length}
-                                            </Badge>
-                                            salas encontradas
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => abrirEdicaoSala()}
-                                        className="d-flex align-items-center rounded-pill px-4 py-2"
-                                        style={{
-                                            background:
-                                                "linear-gradient(135deg, #001A47 0%, #003875 100%)",
-                                            border: "none",
-                                        }}
-                                    >
-                                        <Plus size={16} className="me-2" />
-                                        Nova Sala
-                                    </Button>
-                                </div>
-
-                                {/* Filtros e Pesquisa */}
-                                <Row className="g-3">
-                                    <Col md={6} lg={5}>
-                                        <InputGroup className="shadow-sm">
-                                            <InputGroup.Text className="bg-light border-end-0">
-                                                <Search size={16} />
-                                            </InputGroup.Text>
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Pesquisar por nome, andar ou número..."
-                                                value={termoPesquisa}
-                                                onChange={(e) =>
-                                                    setTermoPesquisa(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="border-start-0"
-                                            />
-                                        </InputGroup>
-                                    </Col>
-                                    <Col md={4} lg={3}>
-                                        <InputGroup className="shadow-sm">
-                                            <InputGroup.Text className="bg-light border-end-0">
-                                                <Filter size={16} />
-                                            </InputGroup.Text>
-                                            <Form.Select
-                                                value={filtroDisponibilidade}
-                                                onChange={(e) =>
-                                                    setFiltroDisponibilidade(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="border-start-0"
-                                            >
-                                                <option value="todos">
-                                                    Todas as salas
-                                                </option>
-                                                <option value="disponivel">
-                                                    Apenas disponíveis
-                                                </option>
-                                                <option value="indisponivel">
-                                                    Apenas reservadas
-                                                </option>
-                                            </Form.Select>
-                                        </InputGroup>
-                                    </Col>
-                                    <Col
-                                        md={2}
-                                        lg={4}
-                                        className="d-flex align-items-center justify-content-end"
-                                    >
-                                        <div className="text-muted small">
-                                            Página {paginaAtual} de{" "}
-                                            {totalPaginas}
+                    {temPermissao('salas') && (
+                        <Tab
+                            eventKey="salas"
+                            title={
+                                <span className="d-flex align-items-center px-3 py-2">
+                                    <Building className="me-2" size={16} />
+                                    Gerenciar Salas
+                                </span>
+                            }
+                        >
+                            <Card className="shadow-sm border-0 mb-4">
+                                <Card.Header className="bg-white border-0 py-4">
+                                    <div className="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4">
+                                        <div className="mb-3 mb-lg-0">
+                                            <h4 className="mb-1 d-flex align-items-center">
+                                                <Building className="me-2" />
+                                                Salas Cadastradas
+                                            </h4>
+                                            <p className="text-muted mb-0">
+                                                <Badge
+                                                    bg="secondary"
+                                                    className="me-2"
+                                                >
+                                                    {salasFiltradas.length}
+                                                </Badge>
+                                                salas encontradas
+                                            </p>
                                         </div>
-                                    </Col>
-                                </Row>
-                            </Card.Header>
-                            <Card.Body className="p-0">
-                                <div className="table-responsive">
-                                    <Table hover className="mb-0">
-                                        <thead
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => abrirEdicaoSala()}
+                                            className="d-flex align-items-center rounded-pill px-4 py-2"
                                             style={{
-                                                backgroundColor: "#f8f9fa",
+                                                background:
+                                                    "linear-gradient(135deg, #001A47 0%, #003875 100%)",
+                                                border: "none",
                                             }}
                                         >
-                                            <tr>
-                                                <th className="border-0 py-3 ps-4">
-                                                    Andar
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Número
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Nome
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Área
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Posição
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Preço
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Status
-                                                </th>
-                                                <th className="border-0 py-3 pe-4">
-                                                    Ações
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {salasExibidas.length === 0 ? (
-                                                <tr>
-                                                    <td
-                                                        colSpan="8"
-                                                        className="text-center py-5 text-muted"
-                                                    >
-                                                        <Building
-                                                            size={48}
-                                                            className="mb-3 opacity-50"
-                                                        />
-                                                        <div>
-                                                            Nenhuma sala
-                                                            encontrada com os
-                                                            filtros aplicados
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                salasExibidas.map((sala) => (
-                                                    <tr
-                                                        key={sala.id}
-                                                        className="align-middle"
-                                                    >
-                                                        <td className="fw-semibold ps-4">
-                                                            <Badge
-                                                                bg="light"
-                                                                text="dark"
-                                                                className="fs-6"
-                                                            >
-                                                                {sala.andar}°
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="fw-medium">
-                                                            {sala.numero}
-                                                        </td>
-                                                        <td>{sala.nome}</td>
-                                                        <td>
-                                                            <div className="d-flex align-items-center">
-                                                                <MapPin
-                                                                    size={14}
-                                                                    className="me-1 text-muted"
-                                                                />
-                                                                {sala.area} m²
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span className="badge bg-light text-dark border fs-6">
-                                                                {sala.posicao}
-                                                            </span>
-                                                        </td>
-                                                        <td className="fw-semibold">
-                                                            <div className="d-flex align-items-center">
-                                                                <DollarSign
-                                                                    size={14}
-                                                                    className="me-1 text-success"
-                                                                />
-                                                                R${" "}
-                                                                {parseFloat(
-                                                                    sala.preco,
-                                                                ).toLocaleString(
-                                                                    "pt-BR",
-                                                                    {
-                                                                        minimumFractionDigits: 2,
-                                                                    },
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <Badge
-                                                                bg={
-                                                                    sala.disponivel
-                                                                        ? "success"
-                                                                        : "danger"
-                                                                }
-                                                                className="px-3 py-2 fs-6"
-                                                            >
-                                                                {sala.disponivel
-                                                                    ? "Disponível"
-                                                                    : "Reservado"}
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="pe-4">
-                                                            <div className="d-flex gap-2">
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline-primary"
-                                                                    onClick={() =>
-                                                                        abrirEdicaoSala(
-                                                                            sala,
-                                                                        )
-                                                                    }
-                                                                    className="d-flex align-items-center rounded-pill px-3"
-                                                                >
-                                                                    <Edit3
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                        className="me-1"
-                                                                    />
-                                                                    Editar
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline-danger"
-                                                                    onClick={() =>
-                                                                        excluirSala(
-                                                                            sala,
-                                                                        )
-                                                                    }
-                                                                    className="d-flex align-items-center rounded-pill px-3"
-                                                                >
-                                                                    <i
-                                                                        className="bi bi-trash"
-                                                                        style={{
-                                                                            fontSize:
-                                                                                "14px",
-                                                                        }}
-                                                                    ></i>
-                                                                    <span className="ms-1">
-                                                                        Excluir
-                                                                    </span>
-                                                                </Button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </Table>
-                                </div>
+                                            <Plus size={16} className="me-2" />
+                                            Nova Sala
+                                        </Button>
+                                    </div>
 
-                                {/* Paginação */}
-                                {totalPaginas > 1 && (
-                                    <div className="d-flex justify-content-center p-4 border-top bg-light">
-                                        <Pagination className="mb-0">
-                                            <Pagination.First
-                                                onClick={() =>
-                                                    setPaginaAtual(1)
-                                                }
-                                                disabled={paginaAtual === 1}
-                                            />
-                                            <Pagination.Prev
-                                                onClick={() =>
-                                                    setPaginaAtual(
-                                                        Math.max(
-                                                            1,
-                                                            paginaAtual - 1,
-                                                        ),
-                                                    )
-                                                }
-                                                disabled={paginaAtual === 1}
-                                            />
-
-                                            {Array.from(
-                                                {
-                                                    length: Math.min(
-                                                        5,
-                                                        totalPaginas,
-                                                    ),
-                                                },
-                                                (_, i) => {
-                                                    let pageNum;
-                                                    if (totalPaginas <= 5) {
-                                                        pageNum = i + 1;
-                                                    } else if (
-                                                        paginaAtual <= 3
-                                                    ) {
-                                                        pageNum = i + 1;
-                                                    } else if (
-                                                        paginaAtual >=
-                                                        totalPaginas - 2
-                                                    ) {
-                                                        pageNum =
-                                                            totalPaginas -
-                                                            4 +
-                                                            i;
-                                                    } else {
-                                                        pageNum =
-                                                            paginaAtual - 2 + i;
+                                    {/* Filtros e Pesquisa */}
+                                    <Row className="g-3">
+                                        <Col md={6} lg={5}>
+                                            <InputGroup className="shadow-sm">
+                                                <InputGroup.Text className="bg-light border-end-0">
+                                                    <Search size={16} />
+                                                </InputGroup.Text>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Pesquisar por nome, andar ou número..."
+                                                    value={termoPesquisa}
+                                                    onChange={(e) =>
+                                                        setTermoPesquisa(
+                                                            e.target.value,
+                                                        )
                                                     }
-
-                                                    return (
-                                                        <Pagination.Item
-                                                            key={pageNum}
-                                                            active={
-                                                                pageNum ===
-                                                                paginaAtual
-                                                            }
-                                                            onClick={() =>
-                                                                setPaginaAtual(
-                                                                    pageNum,
-                                                                )
-                                                            }
-                                                        >
-                                                            {pageNum}
-                                                        </Pagination.Item>
-                                                    );
-                                                },
-                                            )}
-
-                                            <Pagination.Next
-                                                onClick={() =>
-                                                    setPaginaAtual(
-                                                        Math.min(
-                                                            totalPaginas,
-                                                            paginaAtual + 1,
-                                                        ),
-                                                    )
-                                                }
-                                                disabled={
-                                                    paginaAtual === totalPaginas
-                                                }
-                                            />
-                                            <Pagination.Last
-                                                onClick={() =>
-                                                    setPaginaAtual(totalPaginas)
-                                                }
-                                                disabled={
-                                                    paginaAtual === totalPaginas
-                                                }
-                                            />
-                                        </Pagination>
-                                    </div>
-                                )}
-                            </Card.Body>
-                        </Card>
-                    </Tab>
-
-                    <Tab
-                        eventKey="formularios"
-                        title={
-                            <span className="d-flex align-items-center px-3 py-2">
-                                <Eye className="me-2" size={16} />
-                                Formulários
-                            </span>
-                        }
-                    >
-                        <Row className="g-4">
-                            <Col lg={6}>
-                                <FormularioCard
-                                    title="Pré-Reservas"
-                                    items={preReservas}
-                                    tipo="pre-reservas"
-                                    bgColor="primary"
-                                    icon={
-                                        <i
-                                            className="bi bi-bookmark-check"
-                                            style={{ fontSize: "1.2rem" }}
-                                        ></i>
-                                    }
-                                />
-                            </Col>
-                            <Col lg={6}>
-                                <FormularioCard
-                                    title="Contrapropostas"
-                                    items={contrapropostas}
-                                    tipo="contrapropostas"
-                                    bgColor="warning"
-                                    icon={
-                                        <i
-                                            className="bi bi-chat-square-text"
-                                            style={{ fontSize: "1.2rem" }}
-                                        ></i>
-                                    }
-                                />
-                            </Col>
-                        </Row>
-                    </Tab>
-
-                    <Tab
-                        eventKey="agendamentos"
-                        title={
-                            <span className="d-flex align-items-center px-3 py-2">
-                                <Calendar className="me-2" size={16} />
-                                Agendamentos
-                            </span>
-                        }
-                    >
-                        <Card className="shadow-sm border-0">
-                            <Card.Header className="bg-success text-White py-3">
-                                <div className="d-flex align-items-center justify-content-between">
-                                    <div className="d-flex align-items-center">
-                                        <Calendar className="me-2" size={20} />
-                                        <h5 className="mb-0 fw-bold">
-                                            Agendamentos de Reunião
-                                        </h5>
-                                    </div>
-                                    <Badge
-                                        bg="light"
-                                        text="dark"
-                                        className="fs-6 px-3 py-2"
-                                    >
-                                        {agendamentos.length}
-                                    </Badge>
-                                </div>
-                            </Card.Header>
-                            <Card.Body className="p-0">
-                                {agendamentos.length === 0 ? (
-                                    <div className="text-center text-muted py-5">
-                                        <Calendar
-                                            size={48}
-                                            className="mb-3 opacity-50"
-                                        />
-                                        <p className="mb-0">
-                                            Nenhum agendamento encontrado
-                                        </p>
-                                    </div>
-                                ) : (
+                                                    className="border-start-0"
+                                                />
+                                            </InputGroup>
+                                        </Col>
+                                        <Col md={4} lg={3}>
+                                            <InputGroup className="shadow-sm">
+                                                <InputGroup.Text className="bg-light border-end-0">
+                                                    <Filter size={16} />
+                                                </InputGroup.Text>
+                                                <Form.Select
+                                                    value={filtroDisponibilidade}
+                                                    onChange={(e) =>
+                                                        setFiltroDisponibilidade(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="border-start-0"
+                                                >
+                                                    <option value="todos">
+                                                        Todas as salas
+                                                    </option>
+                                                    <option value="disponivel">
+                                                        Apenas disponíveis
+                                                    </option>
+                                                    <option value="indisponivel">
+                                                        Apenas reservadas
+                                                    </option>
+                                                </Form.Select>
+                                            </InputGroup>
+                                        </Col>
+                                        <Col
+                                            md={2}
+                                            lg={4}
+                                            className="d-flex align-items-center justify-content-end"
+                                        >
+                                            <div className="text-muted small">
+                                                Página {paginaAtual} de{" "}
+                                                {totalPaginas}
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Card.Header>
+                                <Card.Body className="p-0">
                                     <div className="table-responsive">
                                         <Table hover className="mb-0">
                                             <thead
@@ -1266,19 +947,22 @@ const Painel = () => {
                                             >
                                                 <tr>
                                                     <th className="border-0 py-3 ps-4">
+                                                        Andar
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Número
+                                                    </th>
+                                                    <th className="border-0 py-3">
                                                         Nome
                                                     </th>
                                                     <th className="border-0 py-3">
-                                                        CPF/CNPJ
+                                                        Área
                                                     </th>
                                                     <th className="border-0 py-3">
-                                                        Contato
+                                                        Posição
                                                     </th>
                                                     <th className="border-0 py-3">
-                                                        Data
-                                                    </th>
-                                                    <th className="border-0 py-3">
-                                                        Hora
+                                                        Preço
                                                     </th>
                                                     <th className="border-0 py-3">
                                                         Status
@@ -1289,266 +973,613 @@ const Painel = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {agendamentos.map(
-                                                    (agendamento) => (
-                                                        <tr
-                                                            key={agendamento.id}
-                                                            className={`align-middle ${!agendamento.visualizado ? "table-warning" : ""}`}
+                                                {salasExibidas.length === 0 ? (
+                                                    <tr>
+                                                        <td
+                                                            colSpan="8"
+                                                            className="text-center py-5 text-muted"
                                                         >
-                                                            <td className="ps-4">
+                                                            <Building
+                                                                size={48}
+                                                                className="mb-3 opacity-50"
+                                                            />
+                                                            <div>
+                                                                Nenhuma sala
+                                                                encontrada com os
+                                                                filtros aplicados
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    salasExibidas.map((sala) => (
+                                                        <tr
+                                                            key={sala.id}
+                                                            className="align-middle"
+                                                        >
+                                                            <td className="fw-semibold ps-4">
+                                                                <Badge
+                                                                    bg="light"
+                                                                    text="dark"
+                                                                    className="fs-6"
+                                                                >
+                                                                    {sala.andar}°
+                                                                </Badge>
+                                                            </td>
+                                                            <td className="fw-medium">
+                                                                {sala.numero}
+                                                            </td>
+                                                            <td>{sala.nome}</td>
+                                                            <td>
                                                                 <div className="d-flex align-items-center">
-                                                                    <User
-                                                                        size={
-                                                                            16
-                                                                        }
-                                                                        className="text-primary me-2"
+                                                                    <MapPin
+                                                                        size={14}
+                                                                        className="me-1 text-muted"
                                                                     />
-                                                                    <span className="fw-medium">
+                                                                    {sala.area} m²
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <span className="badge bg-light text-dark border fs-6">
+                                                                    {sala.posicao}
+                                                                </span>
+                                                            </td>
+                                                            <td className="fw-semibold">
+                                                                <div className="d-flex align-items-center">
+                                                                    <DollarSign
+                                                                        size={14}
+                                                                        className="me-1 text-success"
+                                                                    />
+                                                                    R${" "}
+                                                                    {parseFloat(
+                                                                        sala.preco,
+                                                                    ).toLocaleString(
+                                                                        "pt-BR",
                                                                         {
-                                                                            agendamento.nome
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                {
-                                                                    agendamento.cpf_cnpj
-                                                                }
-                                                            </td>
-                                                            <td>
-                                                                <div className="d-flex align-items-center">
-                                                                    <Phone
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                        className="text-muted me-2"
-                                                                    />
-                                                                    {
-                                                                        agendamento.contato
-                                                                    }
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div className="d-flex align-items-center">
-                                                                    <Calendar
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                        className="text-muted me-2"
-                                                                    />
-                                                                    {formatarDataBrasileira(
-                                                                        agendamento.data,
+                                                                            minimumFractionDigits: 2,
+                                                                        },
                                                                     )}
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div className="d-flex align-items-center">
-                                                                    <Clock
-                                                                        size={
-                                                                            14
-                                                                        }
-                                                                        className="text-muted me-2"
-                                                                    />
-                                                                    {
-                                                                        agendamento.hora
-                                                                    }
                                                                 </div>
                                                             </td>
                                                             <td>
                                                                 <Badge
                                                                     bg={
-                                                                        agendamento.visualizado
+                                                                        sala.disponivel
                                                                             ? "success"
-                                                                            : "warning"
+                                                                            : "danger"
                                                                     }
                                                                     className="px-3 py-2 fs-6"
                                                                 >
-                                                                    {agendamento.visualizado
-                                                                        ? "Visualizado"
-                                                                        : "Novo"}
+                                                                    {sala.disponivel
+                                                                        ? "Disponível"
+                                                                        : "Reservado"}
                                                                 </Badge>
                                                             </td>
                                                             <td className="pe-4">
-                                                                {!agendamento.visualizado && (
+                                                                <div className="d-flex gap-2">
                                                                     <Button
                                                                         size="sm"
-                                                                        variant="outline-success"
+                                                                        variant="outline-primary"
                                                                         onClick={() =>
-                                                                            marcarComoVisualizado(
-                                                                                "agendamentos",
-                                                                                agendamento.id,
+                                                                            abrirEdicaoSala(
+                                                                                sala,
                                                                             )
                                                                         }
                                                                         className="d-flex align-items-center rounded-pill px-3"
                                                                     >
-                                                                        <Check
+                                                                        <Edit3
                                                                             size={
                                                                                 14
                                                                             }
                                                                             className="me-1"
                                                                         />
-                                                                        Marcar
-                                                                        como
-                                                                        visto
+                                                                        Editar
                                                                     </Button>
-                                                                )}
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline-danger"
+                                                                        onClick={() =>
+                                                                            excluirSala(
+                                                                                sala,
+                                                                            )
+                                                                        }
+                                                                        className="d-flex align-items-center rounded-pill px-3"
+                                                                    >
+                                                                        <i
+                                                                            className="bi bi-trash"
+                                                                            style={{
+                                                                                fontSize:
+                                                                                    "14px",
+                                                                            }}
+                                                                        ></i>
+                                                                        <span className="ms-1">
+                                                                            Excluir
+                                                                        </span>
+                                                                    </Button>
+                                                                </div>
                                                             </td>
                                                         </tr>
-                                                    ),
+                                                    ))
                                                 )}
                                             </tbody>
                                         </Table>
                                     </div>
-                                )}
-                            </Card.Body>
-                        </Card>
-                    </Tab>
 
-                    <Tab
-                        eventKey="historico"
-                        title={
-                            <span className="d-flex align-items-center px-3 py-2">
-                                <i className="bi bi-clock-history me-2"></i>
-                                Histórico
-                            </span>
-                        }
-                    >
-                        <Card className="shadow-sm border-0">
-                            <Card.Header className="bg-info text-white py-3">
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <h5 className="mb-0 fw-bold">
-                                        Histórico de Alterações
-                                    </h5>
-                                    <Badge
-                                        bg="light"
-                                        text="dark"
-                                        className="fs-6"
-                                    >
-                                        {historicoTotal} registros
-                                    </Badge>
-                                </div>
-                            </Card.Header>
-                            <Card.Body className="p-0">
-                                <div className="table-responsive">
-                                    <Table hover size="sm" className="mb-0">
-                                        <thead
-                                            style={{
-                                                backgroundColor: "#f8f9fa",
-                                            }}
+                                    {/* Paginação */}
+                                    {totalPaginas > 1 && (
+                                        <div className="d-flex justify-content-center p-4 border-top bg-light">
+                                            <Pagination className="mb-0">
+                                                <Pagination.First
+                                                    onClick={() =>
+                                                        setPaginaAtual(1)
+                                                    }
+                                                    disabled={paginaAtual === 1}
+                                                />
+                                                <Pagination.Prev
+                                                    onClick={() =>
+                                                        setPaginaAtual(
+                                                            Math.max(
+                                                                1,
+                                                                paginaAtual - 1,
+                                                            ),
+                                                        )
+                                                    }
+                                                    disabled={paginaAtual === 1}
+                                                />
+
+                                                {Array.from(
+                                                    {
+                                                        length: Math.min(
+                                                            5,
+                                                            totalPaginas,
+                                                        ),
+                                                    },
+                                                    (_, i) => {
+                                                        let pageNum;
+                                                        if (totalPaginas <= 5) {
+                                                            pageNum = i + 1;
+                                                        } else if (
+                                                            paginaAtual <= 3
+                                                        ) {
+                                                            pageNum = i + 1;
+                                                        } else if (
+                                                            paginaAtual >=
+                                                            totalPaginas - 2
+                                                        ) {
+                                                            pageNum =
+                                                                totalPaginas -
+                                                                4 +
+                                                                i;
+                                                        } else {
+                                                            pageNum =
+                                                                paginaAtual - 2 + i;
+                                                        }
+
+                                                        return (
+                                                            <Pagination.Item
+                                                                key={pageNum}
+                                                                active={
+                                                                    pageNum ===
+                                                                    paginaAtual
+                                                                }
+                                                                onClick={() =>
+                                                                    setPaginaAtual(
+                                                                        pageNum,
+                                                                    )
+                                                                }
+                                                            >
+                                                                {pageNum}
+                                                            </Pagination.Item>
+                                                        );
+                                                    },
+                                                )}
+
+                                                <Pagination.Next
+                                                    onClick={() =>
+                                                        setPaginaAtual(
+                                                            Math.min(
+                                                                totalPaginas,
+                                                                paginaAtual + 1,
+                                                            ),
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        paginaAtual === totalPaginas
+                                                    }
+                                                />
+                                                <Pagination.Last
+                                                    onClick={() =>
+                                                        setPaginaAtual(totalPaginas)
+                                                    }
+                                                    disabled={
+                                                        paginaAtual === totalPaginas
+                                                    }
+                                                />
+                                            </Pagination>
+                                        </div>
+                                    )}
+                                </Card.Body>
+                            </Card>
+                        </Tab>
+                    )}
+
+                    {temPermissao('formularios') && (
+                        <Tab
+                            eventKey="formularios"
+                            title={
+                                <span className="d-flex align-items-center px-3 py-2">
+                                    <Eye className="me-2" size={16} />
+                                    Propostas
+                                </span>
+                            }
+                        >
+                            <Row className="g-4">
+                                <Col lg={6}>
+                                    <FormularioCard
+                                        title="Pré-Reservas"
+                                        items={preReservas}
+                                        tipo="pre-reservas"
+                                        bgColor="primary"
+                                        icon={
+                                            <i
+                                                className="bi bi-bookmark-check"
+                                                style={{ fontSize: "1.2rem" }}
+                                            ></i>
+                                        }
+                                    />
+                                </Col>
+                                <Col lg={6}>
+                                    <FormularioCard
+                                        title="Contrapropostas"
+                                        items={contrapropostas}
+                                        tipo="contrapropostas"
+                                        bgColor="info "
+                                        icon={
+                                            <i
+                                                className="bi bi-chat-square-text"
+                                                style={{ fontSize: "1.2rem" }}
+                                            ></i>
+                                        }
+                                    />
+                                </Col>
+                            </Row>
+                        </Tab>
+                    )}
+
+                    {temPermissao('agendamentos') && (
+                        <Tab
+                            eventKey="agendamentos"
+                            title={
+                                <span className="d-flex align-items-center px-3 py-2">
+                                    <Calendar className="me-2" size={16} />
+                                    Agendamentos
+                                </span>
+                            }
+                        >
+                            <Card className="shadow-sm border-0">
+                                <Card.Header className="bg-success text-White py-3">
+                                    <div className="d-flex align-items-center justify-content-between">
+                                        <div className="d-flex align-items-center">
+                                            <Calendar className="me-2" size={20} />
+                                            <h5 className="mb-0 fw-bold">
+                                                Agendamentos de Reunião
+                                            </h5>
+                                        </div>
+                                        <Badge
+                                            bg="light"
+                                            text="dark"
+                                            className="fs-6 px-3 py-2"
                                         >
-                                            <tr>
-                                                <th className="border-0 py-3">
-                                                    Data/Hora
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Operação
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Tabela
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Registro ID
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Usuário
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    IP
-                                                </th>
-                                                <th className="border-0 py-3">
-                                                    Detalhes
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {historico.map((item) => (
-                                                <tr key={item.id}>
-                                                    <td
-                                                        style={{
-                                                            fontSize: "12px",
-                                                        }}
-                                                    >
-                                                        {new Date(
-                                                            item.createdAt,
-                                                        ).toLocaleString(
-                                                            "pt-BR",
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        <Badge
-                                                            bg={
-                                                                item.operacao ===
-                                                                    "CREATE"
-                                                                    ? "success"
-                                                                    : item.operacao ===
-                                                                        "UPDATE"
-                                                                        ? "warning"
-                                                                        : item.operacao ===
-                                                                            "DELETE"
-                                                                            ? "danger"
-                                                                            : "info"
-                                                            }
-                                                        >
-                                                            {item.operacao}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>{item.tabela}</td>
-                                                    <td>
-                                                        {item.registro_id ||
-                                                            "-"}
-                                                    </td>
-                                                    <td>{item.usuario}</td>
-                                                    <td
-                                                        style={{
-                                                            fontSize: "11px",
-                                                        }}
-                                                    >
-                                                        {item.ip_address?.substring(
-                                                            0,
-                                                            15,
-                                                        ) || "-"}
-                                                    </td>
-                                                    <td>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-info"
-                                                            onClick={() => {
-                                                                const detalhes =
-                                                                {
-                                                                    antes: item.dados_antes,
-                                                                    depois: item.dados_depois,
-                                                                };
-                                                                alert(
-                                                                    `Detalhes:\n${JSON.stringify(detalhes, null, 2)}`,
-                                                                );
-                                                            }}
-                                                            className="rounded-pill px-3"
-                                                        >
-                                                            Ver
-                                                        </Button>
-                                                    </td>
+                                            {agendamentos.length}
+                                        </Badge>
+                                    </div>
+                                </Card.Header>
+                                <Card.Body className="p-0">
+                                    {agendamentos.length === 0 ? (
+                                        <div className="text-center text-muted py-5">
+                                            <Calendar
+                                                size={48}
+                                                className="mb-3 opacity-50"
+                                            />
+                                            <p className="mb-0">
+                                                Nenhum agendamento encontrado
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="table-responsive">
+                                            <Table hover className="mb-0">
+                                                <thead
+                                                    style={{
+                                                        backgroundColor: "#f8f9fa",
+                                                    }}
+                                                >
+                                                    <tr>
+                                                        <th className="border-0 py-3 ps-4">
+                                                            Nome
+                                                        </th>
+                                                        <th className="border-0 py-3">
+                                                            CPF/CNPJ
+                                                        </th>
+                                                        <th className="border-0 py-3">
+                                                            Contato
+                                                        </th>
+                                                        <th className="border-0 py-3">
+                                                            Data
+                                                        </th>
+                                                        <th className="border-0 py-3">
+                                                            Hora
+                                                        </th>
+                                                        <th className="border-0 py-3">
+                                                            Status
+                                                        </th>
+                                                        <th className="border-0 py-3 pe-4">
+                                                            Ações
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {agendamentos.map(
+                                                        (agendamento) => (
+                                                            <tr
+                                                                key={agendamento.id}
+                                                                className={`align-middle ${!agendamento.visualizado ? "table-warning" : ""}`}
+                                                            >
+                                                                <td className="ps-4">
+                                                                    <div className="d-flex align-items-center">
+                                                                        <User
+                                                                            size={
+                                                                                16
+                                                                            }
+                                                                            className="text-primary me-2"
+                                                                        />
+                                                                        <span className="fw-medium">
+                                                                            {
+                                                                                agendamento.nome
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    {
+                                                                        agendamento.cpf_cnpj
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <div className="d-flex align-items-center">
+                                                                        <Phone
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                            className="text-muted me-2"
+                                                                        />
+                                                                        {
+                                                                            agendamento.contato
+                                                                        }
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="d-flex align-items-center">
+                                                                        <Calendar
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                            className="text-muted me-2"
+                                                                        />
+                                                                        {formatarDataBrasileira(
+                                                                            agendamento.data,
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="d-flex align-items-center">
+                                                                        <Clock
+                                                                            size={
+                                                                                14
+                                                                            }
+                                                                            className="text-muted me-2"
+                                                                        />
+                                                                        {
+                                                                            agendamento.hora
+                                                                        }
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <Badge
+                                                                        bg={
+                                                                            agendamento.visualizado
+                                                                                ? "success"
+                                                                                : "warning"
+                                                                        }
+                                                                        className="px-3 py-2 fs-6"
+                                                                    >
+                                                                        {agendamento.visualizado
+                                                                            ? "Visualizado"
+                                                                            : "Novo"}
+                                                                    </Badge>
+                                                                </td>
+                                                                <td className="pe-4">
+                                                                    {!agendamento.visualizado && (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline-success"
+                                                                            onClick={() =>
+                                                                                marcarComoVisualizado(
+                                                                                    "agendamentos",
+                                                                                    agendamento.id,
+                                                                                )
+                                                                            }
+                                                                            className="d-flex align-items-center rounded-pill px-3"
+                                                                        >
+                                                                            <Check
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                                className="me-1"
+                                                                            />
+                                                                            Marcar
+                                                                            como
+                                                                            visto
+                                                                        </Button>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ),
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    )}
+                                </Card.Body>
+                            </Card>
+                        </Tab>
+                    )}
+
+                    {temPermissao('historico') && (
+                        <Tab
+                            eventKey="historico"
+                            title={
+                                <span className="d-flex align-items-center px-3 py-2">
+                                    <i className="bi bi-clock-history me-2"></i>
+                                    Histórico
+                                </span>
+                            }
+                        >
+                            <Card className="shadow-sm border-0">
+                                <Card.Header className="bg-info text-white py-3">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <h5 className="mb-0 fw-bold">
+                                            Histórico de Alterações
+                                        </h5>
+                                        <Badge
+                                            bg="light"
+                                            text="dark"
+                                            className="fs-6"
+                                        >
+                                            {historicoTotal} registros
+                                        </Badge>
+                                    </div>
+                                </Card.Header>
+                                <Card.Body className="p-0">
+                                    <div className="table-responsive">
+                                        <Table hover size="sm" className="mb-0">
+                                            <thead
+                                                style={{
+                                                    backgroundColor: "#f8f9fa",
+                                                }}
+                                            >
+                                                <tr>
+                                                    <th className="border-0 py-3">
+                                                        Data/Hora
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Operação
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Tabela
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Registro ID
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Usuário
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        IP
+                                                    </th>
+                                                    <th className="border-0 py-3">
+                                                        Detalhes
+                                                    </th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                                <div className="d-flex justify-content-center p-4 border-top bg-light">
-                                    <Button
-                                        variant="outline-primary"
-                                        onClick={() => {
-                                            const newPage = historicoPage + 1;
-                                            setHistoricoPage(newPage);
-                                            buscarHistorico(newPage);
-                                        }}
-                                        disabled={historico.length < 20}
-                                        className="rounded-pill px-4"
-                                    >
-                                        Carregar mais
-                                    </Button>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Tab>
+                                            </thead>
+                                            <tbody>
+                                                {historico.map((item) => (
+                                                    <tr key={item.id}>
+                                                        <td
+                                                            style={{
+                                                                fontSize: "12px",
+                                                            }}
+                                                        >
+                                                            {new Date(
+                                                                item.createdAt,
+                                                            ).toLocaleString(
+                                                                "pt-BR",
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <Badge
+                                                                bg={
+                                                                    item.operacao ===
+                                                                        "CREATE"
+                                                                        ? "success"
+                                                                        : item.operacao ===
+                                                                            "UPDATE"
+                                                                            ? "warning"
+                                                                            : item.operacao ===
+                                                                                "DELETE"
+                                                                                ? "danger"
+                                                                                : "info"
+                                                                }
+                                                            >
+                                                                {item.operacao}
+                                                            </Badge>
+                                                        </td>
+                                                        <td>{item.tabela}</td>
+                                                        <td>
+                                                            {item.registro_id ||
+                                                                "-"}
+                                                        </td>
+                                                        <td>{item.usuario}</td>
+                                                        <td
+                                                            style={{
+                                                                fontSize: "11px",
+                                                            }}
+                                                        >
+                                                            {item.ip_address?.substring(
+                                                                0,
+                                                                15,
+                                                            ) || "-"}
+                                                        </td>
+                                                        <td>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline-info"
+                                                                onClick={() => {
+                                                                    const detalhes =
+                                                                    {
+                                                                        antes: item.dados_antes,
+                                                                        depois: item.dados_depois,
+                                                                    };
+                                                                    alert(
+                                                                        `Detalhes:\n${JSON.stringify(detalhes, null, 2)}`,
+                                                                    );
+                                                                }}
+                                                                className="rounded-pill px-3"
+                                                            >
+                                                                Ver
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </Table>
+                                    </div>
+                                    <div className="d-flex justify-content-center p-4 border-top bg-light">
+                                        <Button
+                                            variant="outline-primary"
+                                            onClick={() => {
+                                                const newPage = historicoPage + 1;
+                                                setHistoricoPage(newPage);
+                                                buscarHistorico(newPage);
+                                            }}
+                                            disabled={historico.length < 20}
+                                            className="rounded-pill px-4"
+                                        >
+                                            Carregar mais
+                                        </Button>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Tab>
+                    )}
                 </Tabs>
             </Container>
 

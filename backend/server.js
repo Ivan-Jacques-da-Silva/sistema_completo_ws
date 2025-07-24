@@ -132,7 +132,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/stripe', stripeRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(auditarOperacao);
-app.use('/api', apiRoutes);
+// Rotas
+app.use('/api', require('./routes/index'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api', require('./routes/auth'));
+app.use('/api', require('./routes/salas'));
+app.use('/api', require('./routes/formularios'));
+app.use('/stripe', require('./stripe/routes'));
 app.use(errorHandler);
 
 // ========== START SERVER ==========

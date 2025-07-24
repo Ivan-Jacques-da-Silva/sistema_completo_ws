@@ -29,6 +29,8 @@ const Login = () => {
 
       if (data.sucesso) {
         localStorage.setItem('admin-token', data.token);
+        localStorage.setItem('usuario', data.usuario);
+        localStorage.setItem('permissoes', JSON.stringify(data.permissoes));
         // Redirecionar para a página que tentou acessar ou para /admin por padrão
         const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/admin';
         navigate(redirectTo, { replace: true });

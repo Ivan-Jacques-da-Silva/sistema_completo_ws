@@ -16,13 +16,31 @@ router.post('/admin/login', async (req, res) => {
       });
     }
 
-    if (usuario === 'admin' && senha === 'admin123') {
-      await registrarHistorico(req, 'LOGIN', 'admin', null, null, { usuario });
+    // Definir usuários e suas permissões
+    const usuarios = {
+      'wallstreet': {
+        senha: 'wallstreet@2025',
+        token: 'admin-token-123',
+        permissoes: ['formularios', 'agendamentos', 'salas', 'admin', 'historico']
+      },
+      'correto': {
+        senha: 'correto@2025',
+        token: 'correto-token-456',
+        permissoes: ['formularios', 'agendamentos']
+      }
+    };
+
+    const userData = usuarios[usuario];
+    
+    if (userData && userData.senha === senha) {
+      await registrarHistorico(req, 'LOGIN', usuario, null, null, { usuario });
       
       res.json({ 
         sucesso: true, 
         mensagem: 'Login realizado com sucesso!',
-        token: 'admin-token-123'
+        token: userData.token,
+        usuario: usuario,
+        permissoes: userData.permissoes
       });
     } else {
       await registrarHistorico(req, 'LOGIN_FAILED', 'admin', null, null, { usuario });
