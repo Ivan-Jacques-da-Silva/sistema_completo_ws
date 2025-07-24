@@ -623,6 +623,27 @@ const Painel = () => {
                                                 />
                                                 {item.contato}
                                             </div>
+                                            {item.sala && (
+                                                <>
+                                                    <div className="col-12">
+                                                        <Building
+                                                            size={14}
+                                                            className="me-2"
+                                                        />
+                                                        {item.sala.nome} - {item.sala.andar}° andar
+                                                    </div>
+                                                    <div className="col-12">
+                                                        <DollarSign
+                                                            size={14}
+                                                            className="me-2"
+                                                        />
+                                                        R$ {parseFloat(item.sala.preco).toLocaleString('pt-BR', {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
+                                                        })}
+                                                    </div>
+                                                </>
+                                            )}
                                             {item.proposta && (
                                                 <div className="col-12">
                                                     <div className="bg-light p-2 rounded mt-2">

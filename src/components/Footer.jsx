@@ -33,12 +33,13 @@ function Rodape() {
               />
 
               {/* Endereço */}
-              <p className="mb-1">Av. Nereu Ramos, 386 - Centro - Chapecó</p>
+              <p className="mb-1">Av. Nereu Ramos, 389 - Centro - Chapecó</p>
               <p className="mb-1">Santa Catarina - Brasil</p>
               <p className="mb-4">CEP: 89802-411</p>
 
               {/* Botão */}
               <button
+                onClick={() => window.open('https://wa.me/5549991310668', '_blank')}
                 style={{
                   backgroundColor: '#fff',
                   color: '#001A47',
@@ -50,6 +51,7 @@ function Rodape() {
               >
                 Entrar em contato
               </button>
+
             </div>
           </div>
         </div>
