@@ -23,9 +23,9 @@ router.post('/admin/login', async (req, res) => {
         token: 'admin-token-123',
         permissoes: ['formularios', 'agendamentos', 'salas', 'admin', 'historico']
       },
-      'correto': {
-        senha: 'correto@2025',
-        token: 'correto-token-456',
+      'corretor': {
+        senha: 'corretor@2025',
+        token: 'corretor-token-456',
         permissoes: ['formularios', 'agendamentos']
       }
     };

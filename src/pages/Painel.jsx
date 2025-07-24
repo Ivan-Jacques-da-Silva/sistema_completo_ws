@@ -76,7 +76,7 @@ const Painel = () => {
         // Definir aba padrão baseada no usuário
         if (nomeUsuario === 'wallstreet' && permissoesUsuario.includes('salas')) {
             setActiveTab('salas');
-        } else if (nomeUsuario === 'correto' && permissoesUsuario.includes('formularios')) {
+        } else if (nomeUsuario === 'corretor' && permissoesUsuario.includes('formularios')) {
             setActiveTab('formularios');
         } else if (permissoesUsuario.includes('formularios')) {
             setActiveTab('formularios');
@@ -448,7 +448,7 @@ const Painel = () => {
             let url, method;
 
             if (salaEdicao.id && salaEdicao.id !== null) {
-                // Edição - garantir que está usando o ID correto
+                // Edição - garantir que está usando o ID corretor
                 url = `${Config.api_url}/api/admin/salas/${salaEdicao.id}`;
                 method = "PUT";
                 console.log("EDITANDO sala com ID:", salaEdicao.id);

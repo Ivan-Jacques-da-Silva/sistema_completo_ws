@@ -3,7 +3,7 @@
 const authenticateAdmin = (req, res, next) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   
-  const tokensValidos = ['admin-token-123', 'correto-token-456'];
+  const tokensValidos = ['admin-token-123', 'corretor-token-456'];
   
   if (!token || !tokensValidos.includes(token)) {
     return res.status(401).json({ 

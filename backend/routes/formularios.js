@@ -2,6 +2,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { registrarHistorico } = require('../middleware/auditoria');
 const { authenticateAdmin } = require('../middleware/auth');
+const { enviarNotificacaoContraproposta, enviarNotificacaoAgendamento } = require('../utils/email');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -101,6 +102,9 @@ router.post('/contraproposta', async (req, res) => {
     // Registrar no histórico
     await registrarHistorico(req, 'CREATE', 'contrapropostas', contraproposta.id, null, { nome, cpf_cnpj, contato, email, proposta });
 
+    // Enviar notificação por email
+    await enviarNotificacaoContraproposta({ nome, cpf_cnpj, contato, email, proposta });
+
     res.json({ 
       sucesso: true, 
       mensagem: 'Contraproposta enviada com sucesso!',
@@ -133,6 +137,9 @@ router.post('/agendar-reuniao', async (req, res) => {
 
     // Registrar no histórico
     await registrarHistorico(req, 'CREATE', 'agendamentos_reuniao', agendamento.id, null, { nome, cpf_cnpj, contato, email, data, hora });
+
+    // Enviar notificação por email
+    await enviarNotificacaoAgendamento({ nome, cpf_cnpj, contato, email, data, hora });
 
     res.json({ 
       sucesso: true, 

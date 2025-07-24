@@ -53,7 +53,7 @@ const handleCheckoutCompleted = async (session) => {
     if (!salaExistente) {
       console.error(`❌ ========== SALA NÃO ENCONTRADA ==========`);
       console.error(`❌ Sala com ID ${salaId} não encontrada no banco`);
-      console.error(`❌ Verificando se ID está correto: ${parseInt(salaId)}`);
+      console.error(`❌ Verificando se ID está corretor: ${parseInt(salaId)}`);
       
       // Tentar listar algumas salas para debug
       try {

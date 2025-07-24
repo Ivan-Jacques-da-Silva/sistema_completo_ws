@@ -65,7 +65,7 @@ if (isProductionMode) {
   console.log('🔴 ========== MODO PRODUÇÃO DETECTADO ==========');
   console.log('🔴 ATENÇÃO: Usando chaves de PRODUÇÃO');
   console.log('🔴 Pagamentos reais serão processados');
-  console.log('🔴 Verifique se está em ambiente correto');
+  console.log('🔴 Verifique se está em ambiente corretor');
   console.log('🔴 =============================================');
 } else if (isTestMode) {
   console.log('🧪 ========== MODO TESTE DETECTADO ==========');
