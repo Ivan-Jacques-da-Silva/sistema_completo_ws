@@ -101,6 +101,16 @@ export function ContrapropostaForm() {
     const Notification = ({ show, onHide, type, title, message }) => {
         const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
 
+        React.useEffect(() => {
+            if (show) {
+                const timer = setTimeout(() => {
+                    onHide();
+                }, 5000); // 5 segundos
+
+                return () => clearTimeout(timer);
+            }
+        }, [show, onHide]);
+
         return (
             <AnimatePresence>
                 {show && (
@@ -244,7 +254,7 @@ export function ContrapropostaForm() {
 export function AgendarReuniaoForm() {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [loading, setLoading] = useState(false);
-        const [notification, setNotification] = useState({
+    const [notification, setNotification] = useState({
         show: false,
         type: '',
         title: '',
@@ -286,7 +296,7 @@ export function AgendarReuniaoForm() {
                     show: true,
                     type: 'success',
                     title: 'Sucesso!',
-                    message: json.mensagem
+                    message: 'Reunião agendada com sucesso!'
                 });
                 event.target.reset();
             } else {
@@ -309,8 +319,18 @@ export function AgendarReuniaoForm() {
         }
     };
 
-        const Notification = ({ show, onHide, type, title, message }) => {
+    const Notification = ({ show, onHide, type, title, message }) => {
         const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
+
+        React.useEffect(() => {
+            if (show) {
+                const timer = setTimeout(() => {
+                    onHide();
+                }, 5000); // 5 segundos
+
+                return () => clearTimeout(timer);
+            }
+        }, [show, onHide]);
 
         return (
             <AnimatePresence>

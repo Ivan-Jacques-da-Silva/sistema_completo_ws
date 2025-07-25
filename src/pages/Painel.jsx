@@ -640,6 +640,10 @@ const Painel = () => {
 
                                         <div className="row g-2 small text-muted">
                                             <div className="col-12">
+                                                <i className="bi bi-person-badge me-2"></i>
+                                                {item.cpf_cnpj}
+                                            </div>
+                                            <div className="col-12">
                                                 <Mail
                                                     size={14}
                                                     className="me-2"
