@@ -83,6 +83,16 @@ const Andares = () => {
     const salasDinamicas = andarAtual?.variacoes || [];
     const salaAtual = salasDinamicas[salaSelecionada - 1];
 
+    const handleAndarChange = (novoAndar) => {
+        setAndarSelecionado(novoAndar);
+        // Atualizar a URL com o novo andar
+        const numeroAndar = novoAndar.replace('° andar', '');
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('andar', numeroAndar);
+        window.history.pushState({}, '', newUrl);
+    };
+
+
     // Se não há dados de produto, mostrar loading
     if (!dadosProduto) {
         return (
@@ -200,11 +210,15 @@ const Andares = () => {
 
                                 {/* <a href="#" className="ws-nav-link mx-3">CONTATO</a> */}
                                 <Button
-                                    as="a"
-                                    href="https://front.wallstreetnr.com.br/folder-wall-street-corporate.pdf"
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={() => {
+                                        const link = document.createElement('a');
+                                        link.href = 'https://front.wallstreetnr.com.br/folder-wall-street-corporate.pdf';
+                                        link.download = 'folder-wall-street-corporate.pdf';
+                                        link.style.display = 'none';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }}
                                     style={{
                                         backgroundColor: "#fff",
                                         border: "none",
@@ -252,30 +266,35 @@ const Andares = () => {
                                 INÍCIO
                             </Link>
                             <a
-                                href="#"
+                                href="https://tour360.meupasseiovirtual.com/067962/278515/tourvirtual/index.html"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="btn btn-outline-dark mb-1 fw-semibold"
                                 onClick={() => setMostrarMenu(false)}
                             >
                                 TOUR VIRTUAL
                             </a>
-                            <a
-                                href="#"
-                                className="btn btn-outline-dark mb-1 fw-semibold"
-                                onClick={() => setMostrarMenu(false)}
-                            >
-                                CONTATO
-                            </a>
-                            <a
-                                href="#"
+                            {/* Botão de contato removido */}
+                            <Button
+                                onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = 'https://front.wallstreetnr.com.br/folder-wall-street-corporate.pdf';
+                                    link.download = 'folder-wall-street-corporate.pdf';
+                                    link.style.display = 'none';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                    setMostrarMenu(false);
+                                }}
                                 className="btn fw-bold"
                                 style={{
-                                    backgroundColor: "#FFF",
+                                    backgroundColor: "transparent",
                                     color: "#001A47",
+                                    border: "1px solid #001A47",
                                 }}
-                                onClick={() => setMostrarMenu(false)}
                             >
                                 BAIXAR PDF
-                            </a>
+                            </Button>
                         </Offcanvas.Body>
                     </Offcanvas>
                 </Container>
@@ -297,7 +316,7 @@ const Andares = () => {
                                             : "outline-dark"
                                     }
                                     className="mb-1 text-start"
-                                    onClick={() => setAndarSelecionado(andar)}
+                                    onClick={() => handleAndarChange(andar)}
                                 >
                                     {andar}
                                 </Button>
@@ -314,7 +333,7 @@ const Andares = () => {
                                             : "outline-dark"
                                     }
                                     style={{ minWidth: "70px" }}
-                                    onClick={() => setAndarSelecionado(andar)}
+                                    onClick={() => handleAndarChange(andar)}
                                 >
                                     {andar}
                                 </Button>
