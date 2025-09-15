@@ -64,6 +64,7 @@ const Painel = () => {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [termoPesquisa, setTermoPesquisa] = useState("");
     const [filtroDisponibilidade, setFiltroDisponibilidade] = useState("todos");
+    const [filtroAndar, setFiltroAndar] = useState("todos");
     const itensPorPagina = 10;
 
     useEffect(() => {
@@ -232,7 +233,11 @@ const Painel = () => {
             (filtroDisponibilidade === "disponivel" && sala.disponivel) ||
             (filtroDisponibilidade === "indisponivel" && !sala.disponivel);
 
-        return matchPesquisa && matchDisponibilidade;
+        const matchAndar =
+            filtroAndar === "todos" ||
+            sala.andar.toString() === filtroAndar;
+
+        return matchPesquisa && matchDisponibilidade && matchAndar;
     });
 
     // Calcular paginação
@@ -244,7 +249,7 @@ const Painel = () => {
     // Reset da página quando filtros mudam
     useEffect(() => {
         setPaginaAtual(1);
-    }, [termoPesquisa, filtroDisponibilidade]);
+    }, [termoPesquisa, filtroDisponibilidade, filtroAndar]);
 
     const marcarComoVisualizado = async (tipo, id) => {
         try {
@@ -810,14 +815,282 @@ const Painel = () => {
                     .card:hover, .btn:hover, .nav-link:hover, .pagination .page-link:hover, .table tr:hover {
                         transform: none !important;
                     }
-                    .nav-pills .nav-link:not(.active) {
-                        background-color: rgba(0, 0, 0, 0.05) !important;
-                        border: 1px solid rgba(0, 0, 0, 0.1) !important;
-                        border-radius: 20px !important;
-                        color: #6c757d !important;
+                    .custom-tabs .nav-pills .nav-link:not(.active) {
+                        background: linear-gradient(135deg, rgba(0, 26, 71, 0.1) 0%, rgba(0, 56, 117, 0.1) 100%) !important;
+                        border: 1px solid rgba(0, 26, 71, 0.2) !important;
+                        border-radius: 25px !important;
+                        color: #001A47 !important;
+                        font-weight: 600 !important;
+                        padding: 12px 20px !important;
+                        margin: 0 5px !important;
+                        box-shadow: 0 2px 4px rgba(0, 26, 71, 0.1) !important;
                     }
-                    .nav-pills .nav-link.active {
-                        border-radius: 20px !important;
+                    .custom-tabs .nav-pills .nav-link:not(.active):hover {
+                        background: linear-gradient(135deg, rgba(0, 26, 71, 0.2) 0%, rgba(0, 56, 117, 0.2) 100%) !important;
+                        border-color: rgba(0, 26, 71, 0.3) !important;
+                        color: #001A47 !important;
+                    }
+                    .custom-tabs .nav-pills .nav-link.active {
+                        background: linear-gradient(135deg, #001A47 0%, #003875 100%) !important;
+                        border: 1px solid #003875 !important;
+                        border-radius: 25px !important;
+                        color: white !important;
+                        font-weight: 700 !important;
+                        padding: 12px 20px !important;
+                        margin: 0 5px !important;
+                        box-shadow: 0 4px 12px rgba(0, 26, 71, 0.3) !important;
+                    }
+                    
+                    /* Responsividade Mobile */
+                    @media (max-width: 768px) {
+                        .custom-tabs .nav {
+                            display: flex !important;
+                            flex-wrap: wrap !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                            gap: 8px !important;
+                            padding: 10px 15px !important;
+                            max-width: 100% !important;
+                        }
+                        .custom-tabs .nav-item {
+                            flex: 0 0 auto !important;
+                            width: auto !important;
+                            min-width: 140px !important;
+                            max-width: 160px !important;
+                        }
+                        .custom-tabs .nav-link {
+                            width: 100% !important;
+                            text-align: center !important;
+                            padding: 10px 12px !important;
+                            margin: 0 !important;
+                            font-size: 13px !important;
+                            font-weight: 600 !important;
+                            border-radius: 18px !important;
+                            white-space: nowrap !important;
+                            overflow: hidden !important;
+                            text-overflow: ellipsis !important;
+                        }
+                        .custom-tabs .nav-link span {
+                            justify-content: center !important;
+                            align-items: center !important;
+                            gap: 4px !important;
+                        }
+                        .custom-tabs .nav-link span svg {
+                            width: 14px !important;
+                            height: 14px !important;
+                        }
+                        
+                        /* Navbar mobile melhorado */
+                        .navbar-collapse .nav {
+                            padding: 0 !important;
+                            margin-top: 15px !important;
+                        }
+                        .navbar-collapse .nav .btn {
+                            margin-bottom: 8px !important;
+                            font-weight: 500 !important;
+                        }
+                        
+                        /* Header cards melhorado */
+                        .card-header .d-flex {
+                            flex-direction: column !important;
+                            align-items: center !important;
+                            text-align: center !important;
+                            gap: 15px !important;
+                        }
+                        .card-header h4 {
+                            font-size: 1.3rem !important;
+                            margin-bottom: 5px !important;
+                        }
+                        
+                        /* Filtros responsivos melhorados */
+                        .row.g-3 {
+                            gap: 12px !important;
+                        }
+                        .row.g-3 > [class*="col-"] {
+                            padding: 0 !important;
+                            margin-bottom: 0 !important;
+                        }
+                        .input-group {
+                            border-radius: 12px !important;
+                            overflow: hidden !important;
+                        }
+                        .input-group .form-control,
+                        .input-group .form-select {
+                            font-size: 14px !important;
+                            padding: 12px 15px !important;
+                        }
+                        .input-group-text {
+                            padding: 12px 12px !important;
+                        }
+                        
+                        /* Tabela responsiva melhorada */
+                        .table-responsive {
+                            font-size: 13px !important;
+                            border-radius: 12px !important;
+                            overflow: hidden !important;
+                        }
+                        .table th,
+                        .table td {
+                            padding: 10px 8px !important;
+                            vertical-align: middle !important;
+                            white-space: nowrap !important;
+                        }
+                        .table th {
+                            font-size: 12px !important;
+                            font-weight: 600 !important;
+                            text-transform: uppercase !important;
+                        }
+                        
+                        /* Botões de ação mobile melhorados */
+                        .d-flex.gap-2 {
+                            flex-direction: column !important;
+                            gap: 8px !important;
+                        }
+                        .d-flex.gap-2 .btn {
+                            width: 100% !important;
+                            margin: 0 !important;
+                            padding: 8px 16px !important;
+                            font-size: 13px !important;
+                        }
+                        
+                        /* Badges mobile */
+                        .badge {
+                            font-size: 10px !important;
+                            padding: 4px 8px !important;
+                            border-radius: 8px !important;
+                        }
+                        
+                        /* Modal mobile melhorado */
+                        .modal-xl {
+                            max-width: 95% !important;
+                            margin: 10px auto !important;
+                        }
+                        .modal-header {
+                            padding: 15px 20px 10px !important;
+                        }
+                        .modal-body {
+                            padding: 15px 20px !important;
+                        }
+                        .modal-footer {
+                            padding: 10px 20px 15px !important;
+                        }
+                        
+                        /* Cards de formulário mobile */
+                        .row.g-4 .col-lg-6 {
+                            margin-bottom: 20px !important;
+                        }
+                        
+                        /* Paginação mobile */
+                        .pagination {
+                            flex-wrap: wrap !important;
+                            justify-content: center !important;
+                        }
+                        .pagination .page-item {
+                            margin: 2px !important;
+                        }
+                        .pagination .page-link {
+                            padding: 8px 12px !important;
+                            font-size: 14px !important;
+                        }
+                    }
+                    
+                    @media (max-width: 576px) {
+                        .container-fluid {
+                            padding: 0 8px !important;
+                        }
+                        
+                        .navbar {
+                            padding: 12px 8px !important;
+                        }
+                        
+                        .navbar-brand {
+                            font-size: 15px !important;
+                            font-weight: 700 !important;
+                        }
+                        
+                        .navbar-brand span {
+                            font-size: 14px !important;
+                        }
+                        
+                        .btn.rounded-pill {
+                            padding: 10px 16px !important;
+                            font-size: 13px !important;
+                        }
+                        
+                        /* Nav buttons mobile melhorado */
+                        .navbar-collapse .nav {
+                            flex-direction: row !important;
+                            justify-content: center !important;
+                            gap: 10px !important;
+                            flex-wrap: wrap !important;
+                        }
+                        .navbar-collapse .nav .btn,
+                        .navbar-collapse .nav a {
+                            max-width: 140px !important;
+                            font-size: 12px !important;
+                            padding: 8px 12px !important;
+                            margin: 0 !important;
+                        }
+                        
+                        /* Tabs mobile extra pequeno */
+                        .custom-tabs .nav {
+                            gap: 6px !important;
+                            padding: 8px 10px !important;
+                        }
+                        .custom-tabs .nav-item {
+                            min-width: 120px !important;
+                            max-width: 140px !important;
+                        }
+                        .custom-tabs .nav-link {
+                            padding: 8px 10px !important;
+                            font-size: 12px !important;
+                            border-radius: 16px !important;
+                        }
+                        .custom-tabs .nav-link span {
+                            gap: 3px !important;
+                        }
+                        .custom-tabs .nav-link span svg {
+                            width: 12px !important;
+                            height: 12px !important;
+                        }
+                        
+                        /* Esconder colunas menos importantes */
+                        .table th:nth-child(4),
+                        .table td:nth-child(4),
+                        .table th:nth-child(5),
+                        .table td:nth-child(5) {
+                            display: none !important;
+                        }
+                        
+                        /* Cards mobile extra pequeno */
+                        .card {
+                            border-radius: 12px !important;
+                            margin-bottom: 15px !important;
+                        }
+                        .card-header {
+                            padding: 12px 15px !important;
+                        }
+                        .card-body.p-0 {
+                            padding: 12px !important;
+                        }
+                        
+                        /* Filtros mobile extra pequeno */
+                        .input-group .form-control,
+                        .input-group .form-select {
+                            font-size: 13px !important;
+                            padding: 10px 12px !important;
+                        }
+                        
+                        /* Texto pequeno */
+                        .small.text-muted {
+                            font-size: 10px !important;
+                        }
+                        
+                        /* Botão nova sala mobile */
+                        .d-flex.justify-content-between .btn {
+                            font-size: 13px !important;
+                            padding: 8px 16px !important;
+                        }
                     }
                 `}
             </style>
@@ -825,40 +1098,69 @@ const Painel = () => {
 
             <Navbar
                 expand="lg"
-                className="shadow-sm px-4 py-3 mb-4"
+                className="shadow-sm px-2 px-md-4 py-3 mb-4"
                 style={{
                     background:
                         "linear-gradient(135deg, #001A47 0%, #003875 100%)",
                 }}
             >
                 <Navbar.Brand className="fw-bold text-uppercase text-white d-flex align-items-center">
-                    <Building className="me-2" />
-                    Painel Administrativo - Wall Street
+                    <Building className="me-2" size={20} />
+                    <span className="d-none d-md-inline">Painel Administrativo - Wall Street</span>
+                    <span className="d-inline d-md-none">Admin</span>
                 </Navbar.Brand>
-                <Nav className="ms-auto">
-                    <Link
-                        to="/andares"
-                        className="btn btn-outline-light me-3 rounded-pill"
-                    >
-                        <Building size={16} className="me-2" />
-                        Ver Andares
-                    </Link>
-                    <Button
-                        variant="outline-light"
-                        onClick={logout}
-                        className="rounded-pill"
-                    >
-                        <i className="bi bi-box-arrow-right me-2"></i>
-                        Sair
-                    </Button>
-                </Nav>
+                <Navbar.Toggle 
+                    aria-controls="basic-navbar-nav" 
+                    className="border-0 text-white p-1"
+                    style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '8px'
+                    }}
+                >
+                    <span style={{color: 'white', fontSize: '20px', lineHeight: '1'}}>☰</span>
+                </Navbar.Toggle>
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ms-auto d-flex flex-column flex-lg-row align-items-center gap-2 mt-3 mt-lg-0">
+                        <Link
+                            to="/andares"
+                            className="btn btn-outline-light rounded-pill d-flex align-items-center justify-content-center py-2 px-3"
+                            style={{
+                                width: '100%', 
+                                maxWidth: '200px',
+                                fontSize: '14px',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                transition: 'all 0.3s ease',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            <Building size={16} className="me-2" />
+                            <span className="d-none d-lg-inline">Ver Andares</span>
+                            <span className="d-inline d-lg-none">Ver Andares</span>
+                        </Link>
+                        <Button
+                            variant="outline-light"
+                            onClick={logout}
+                            className="rounded-pill d-flex align-items-center justify-content-center py-2 px-3"
+                            style={{
+                                width: '100%', 
+                                maxWidth: '120px',
+                                fontSize: '14px',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <i className="bi bi-box-arrow-right me-2"></i>
+                            Sair
+                        </Button>
+                    </Nav>
+                </Navbar.Collapse>
             </Navbar>
 
             <Container className="pb-5">
                 <Tabs
                     activeKey={activeTab}
                     onSelect={(k) => setActiveTab(k)}
-                    className="mb-4"
+                    className="mb-4 custom-tabs"
                     variant="pills"
                 >
                     {temPermissao('salas') && (
@@ -906,7 +1208,7 @@ const Painel = () => {
 
                                     {/* Filtros e Pesquisa */}
                                     <Row className="g-3">
-                                        <Col md={6} lg={5}>
+                                        <Col xs={12} lg={5}>
                                             <InputGroup className="shadow-sm">
                                                 <InputGroup.Text className="bg-light border-end-0">
                                                     <Search size={16} />
@@ -924,7 +1226,31 @@ const Painel = () => {
                                                 />
                                             </InputGroup>
                                         </Col>
-                                        <Col md={4} lg={3}>
+                                        <Col xs={12} md={6} lg={3}>
+                                            <InputGroup className="shadow-sm">
+                                                <InputGroup.Text className="bg-light border-end-0">
+                                                    <Building size={16} />
+                                                </InputGroup.Text>
+                                                <Form.Select
+                                                    value={filtroAndar}
+                                                    onChange={(e) =>
+                                                        setFiltroAndar(e.target.value)
+                                                    }
+                                                    className="border-start-0"
+                                                >
+                                                    <option value="todos">Todos os andares</option>
+                                                    {Array.from(new Set(salas.map(sala => sala.andar)))
+                                                        .sort((a, b) => b - a)
+                                                        .map(andar => (
+                                                            <option key={andar} value={andar.toString()}>
+                                                                {andar}° andar
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </Form.Select>
+                                            </InputGroup>
+                                        </Col>
+                                        <Col xs={12} md={6} lg={2}>
                                             <InputGroup className="shadow-sm">
                                                 <InputGroup.Text className="bg-light border-end-0">
                                                     <Filter size={16} />
@@ -939,23 +1265,23 @@ const Painel = () => {
                                                     className="border-start-0"
                                                 >
                                                     <option value="todos">
-                                                        Todas as salas
+                                                        Todas
                                                     </option>
                                                     <option value="disponivel">
-                                                        Apenas disponíveis
+                                                        Disponíveis
                                                     </option>
                                                     <option value="indisponivel">
-                                                        Apenas reservadas
+                                                        Reservadas
                                                     </option>
                                                 </Form.Select>
                                             </InputGroup>
                                         </Col>
                                         <Col
-                                            md={2}
-                                            lg={4}
-                                            className="d-flex align-items-center justify-content-end"
+                                            xs={12}
+                                            lg={2}
+                                            className="d-flex align-items-center justify-content-center justify-content-lg-end"
                                         >
-                                            <div className="text-muted small">
+                                            <div className="text-muted small text-center">
                                                 Página {paginaAtual} de{" "}
                                                 {totalPaginas}
                                             </div>

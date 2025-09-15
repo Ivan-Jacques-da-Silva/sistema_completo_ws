@@ -126,7 +126,7 @@ const Andares = () => {
         valorTotalSemDesconto -
         (entrada + reforco2025 + reforco2026 + reforco2027);
     const parcelaCub = valorParcelamento / 55;
-    const valorizacaoEntrega = valorTotalSemDesconto * 1.9;
+    const valorizacaoEntrega = valorTotalSemDesconto * 1.5;
     const lucro = valorizacaoEntrega - valorTotalSemDesconto;
     const valorAluguel = valorTotalSemDesconto * 0.0095;
 
