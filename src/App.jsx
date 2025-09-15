@@ -15,7 +15,6 @@ import CheckoutSucesso from './pages/CheckoutSucesso.jsx';
 import CheckoutCancelado from './pages/CheckoutCancelado.jsx';
 import LoginMembro from './pages/LoginMembro'
 import AreaMembro from './pages/AreaMembro'
-import ResaleShowcase from './pages/ResaleShowcase'
 import ProtectedRouteMembro from './components/ProtectedRouteMembro'
 
 function App() {
@@ -38,7 +37,6 @@ function App() {
               <AreaMembro />
             </ProtectedRouteMembro>
           } />
-          <Route path="/resale-showcase" element={<ResaleShowcase />} />
         </Routes>
 
       </div>

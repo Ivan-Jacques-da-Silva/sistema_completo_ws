@@ -52,7 +52,7 @@ const LoginMembro = () => {
     setTimeout(() => {
       if (cpfLimpo === '12345678900' && senha === 'demo123') {
         localStorage.setItem('membro-token', 'membro-token-123');
-        localStorage.setItem('membro-nome', 'Gabriel Silva');
+        localStorage.setItem('membro-nome', 'Ivan Silva');
         navigate('/area-membro');
       } else {
         setErro('CPF ou senha incorretos');
