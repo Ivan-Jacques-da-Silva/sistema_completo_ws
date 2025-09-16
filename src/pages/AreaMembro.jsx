@@ -29,6 +29,11 @@ import {
   X
 } from 'lucide-react';
 
+// Importar componentes de dashboard
+import PortfolioContent from '../components/dashboard/PortfolioContent';
+import MarketplaceContent from '../components/dashboard/MarketplaceContent';
+import PerformanceContent from '../components/dashboard/PerformanceContent';
+
 // --- Componentes de Página ---
 
 // Dashboard Principal - Design Premium
@@ -586,115 +591,7 @@ const DashboardContent = () => {
   );
 };
 
-const PortfolioContent = () => (
-  <div>
-    <h2 style={{ color: '#0f172a', fontWeight: '800', fontSize: '32px' }} className="mb-4">Meu Portfólio</h2>
-    <p className="text-muted mb-5" style={{ fontSize: '16px', fontWeight: '500' }}>
-      Detalhes das suas propriedades e investimentos
-    </p>
 
-    <Row>
-      {[1, 2, 3].map((item) => (
-        <Col lg={4} key={item} className="mb-4">
-          <Card className="border-0 shadow-lg" style={{ borderRadius: '24px' }}>
-            <div style={{ height: '220px', background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)', borderRadius: '24px 24px 0 0' }}>
-              <img 
-                src={`/src/img/salas/sala${item}.png`}
-                alt={`Sala ${item}`}
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover',
-                  borderRadius: '24px 24px 0 0'
-                }}
-              />
-            </div>
-            <Card.Body className="p-4">
-              <h5 className="mb-2" style={{ color: '#0f172a', fontWeight: '700' }}>Sala {1000 + item * 8}</h5>
-              <p className="text-muted small mb-3" style={{ fontWeight: '500' }}>
-                {60 + item * 8}.{item}0 m² • {10 + item}° Andar
-              </p>
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <div className="small text-muted" style={{ fontWeight: '600' }}>Valorização</div>
-                  <div style={{ fontWeight: '800', color: '#10b981', fontSize: '18px' }}>+{15 + item * 2}%</div>
-                </div>
-                <Button 
-                  size="sm"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
-                    border: 'none',
-                    borderRadius: '20px',
-                    fontWeight: '600',
-                    padding: '8px 16px'
-                  }}
-                >
-                  Ver Detalhes
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  </div>
-);
-
-const PerformanceContent = () => (
-  <div>
-    <h2 style={{ color: '#0f172a', fontWeight: '800', fontSize: '32px' }} className="mb-4">Performance</h2>
-    <p className="text-muted mb-5" style={{ fontSize: '16px', fontWeight: '500' }}>
-      Análise detalhada do desempenho dos seus investimentos
-    </p>
-
-    <Card className="border-0 shadow-lg" style={{ borderRadius: '24px' }}>
-      <Card.Body className="p-5 text-center">
-        <div 
-          className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4"
-          style={{
-            width: '100px',
-            height: '100px',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-            boxShadow: '0 8px 25px rgba(59,130,246,0.3)'
-          }}
-        >
-          <BarChart3 size={50} className="text-white" />
-        </div>
-        <h4 style={{ color: '#0f172a', fontWeight: '700' }}>Relatórios de Performance</h4>
-        <p className="text-muted" style={{ fontWeight: '500' }}>Gráficos e análises detalhadas em desenvolvimento</p>
-      </Card.Body>
-    </Card>
-  </div>
-);
-
-const MarketplaceContent = () => (
-  <div>
-    <h2 style={{ color: '#0f172a', fontWeight: '800', fontSize: '32px' }} className="mb-4">Marketplace</h2>
-    <p className="text-muted mb-5" style={{ fontSize: '16px', fontWeight: '500' }}>
-      Oportunidades de compra e venda entre investidores
-    </p>
-
-    <Card className="border-0 shadow-lg" style={{ borderRadius: '24px' }}>
-      <Card.Body className="p-5 text-center">
-        <div 
-          className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4"
-          style={{
-            width: '100px',
-            height: '100px',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            boxShadow: '0 8px 25px rgba(16,185,129,0.3)'
-          }}
-        >
-          <Building size={50} className="text-white" />
-        </div>
-        <h4 style={{ color: '#0f172a', fontWeight: '700' }}>Marketplace de Propriedades</h4>
-        <p className="text-muted" style={{ fontWeight: '500' }}>
-          Em breve: compre e venda propriedades diretamente na plataforma
-        </p>
-      </Card.Body>
-    </Card>
-  </div>
-);
 
 const DocumentosContent = () => (
   <div>
