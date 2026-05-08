@@ -33,9 +33,9 @@ function Rodape() {
               />
 
               {/* Endereço */}
-              <p className="mb-1">Av. Nereu Ramos, 389 - Centro - Chapecó</p>
+              <p className="mb-1">Av. Nereu Ramos, 389 E - Centro - Chapecó</p>
               <p className="mb-1">Santa Catarina - Brasil</p>
-              <p className="mb-4">CEP: 89802-411</p>
+              <p className="mb-4">CEP: 89801-020</p>
 
               {/* Botão */}
               <button

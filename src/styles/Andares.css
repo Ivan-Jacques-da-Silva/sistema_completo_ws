@@ -8,6 +8,26 @@ html {
     min-height: 100vh;
 }
 
+.andares-content {
+    padding-left: 22px!important;
+    padding-right: 22px!important;
+    border-left: none;
+    border-right: none;
+    box-sizing: border-box;
+}
+
+.andares-content > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Margem entre o título e a lista de andares em telas grandes */
+@media (min-width: 1200px) {
+    .andares-list {
+        margin-top: 35px;
+    }
+}
+
 .logo h1 {
     font-weight: 700;
     line-height: 1;
@@ -118,6 +138,35 @@ html {
     max-width: 100%;
     padding-left: 0;
     padding-right: 0;
+}
+
+@media (min-width: 1200px) {
+    .container-custom {
+        max-width: 97% !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container-custom {
+        max-width: 95% !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    .container-custom {
+        max-width: 92% !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-salas {
+        flex: 0 0 29.166667% !important;
+        max-width: 29.166667% !important;
+    }
+    .col-planta {
+        flex: 0 0 29.166667% !important;
+        max-width: 29.166667% !important;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {

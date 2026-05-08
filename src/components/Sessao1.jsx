@@ -206,7 +206,7 @@ function Sessao1() {
                   textTransform: 'uppercase',
                   color: '#fff'
                 }}>
-                BEM VINDO AO NOVO!
+                BEM-VINDO AO NOVO!
               </div>
             </div>
 
